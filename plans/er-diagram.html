@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Care Coordination App - ER Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #00d9ff;
+        }
+        .mermaid {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        .legend {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #16213e;
+            border-radius: 12px;
+        }
+        .legend h2 {
+            color: #00d9ff;
+            margin-top: 0;
+        }
+        .legend ul {
+            list-style: none;
+            padding: 0;
+        }
+        .legend li {
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+        .legend li:last-child {
+            border-bottom: none;
+        }
+        .table-name {
+            color: #00d9ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏥 Care Coordination App - Database Schema</h1>
+    
+    <div class="mermaid">
+erDiagram
+    profiles ||--o| caregivers : "may be"
+    care_recipients ||--o{ schedules : "has"
+    care_recipients ||--o{ appointments : "has"
+    care_recipients ||--o{ medications : "takes"
+    caregivers ||--o{ schedules : "assigned to"
+    caregivers ||--o{ task_logs : "completes"
+    caregivers ||--o{ medication_logs : "logs"
+    caregivers ||--o{ appointments : "attends"
+    schedules ||--o{ tasks : "contains"
+    tasks ||--o{ task_logs : "tracked by"
+    medications ||--o{ medication_schedules : "scheduled at"
+    medication_schedules ||--o{ medication_logs : "tracked by"
+
+    profiles {
+        uuid id PK "Links to auth.users"
+        text role "admin or caregiver"
+        text full_name
+        text email
+        timestamptz created_at
+    }
+    
+    care_recipients {
+        uuid id PK
+        text name "Person being cared for"
+        text notes
+        date date_of_birth
+        timestamptz created_at
+    }
+    
+    caregivers {
+        uuid id PK
+        uuid profile_id FK "Links to profiles"
+        text phone
+        boolean is_active
+        timestamptz created_at
+    }
+    
+    schedules {
+        uuid id PK
+        uuid care_recipient_id FK
+        uuid caregiver_id FK
+        int day_of_week "0=Sun to 6=Sat"
+        time start_time
+        time end_time
+        timestamptz created_at
+    }
+    
+    tasks {
+        uuid id PK
+        uuid schedule_id FK
+        text title
+        text description
+        int sort_order
+        timestamptz created_at
+    }
+    
+    task_logs {
+        uuid id PK
+        uuid task_id FK
+        uuid caregiver_id FK
+        text status "completed skipped unable"
+        text notes
+        timestamptz completed_at
+        timestamptz created_at
+    }
+    
+    appointments {
+        uuid id PK
+        uuid care_recipient_id FK
+        uuid caregiver_id FK
+        date appointment_date
+        time appointment_time
+        text type "doctor therapy etc"
+        text location
+        text notes
+        text status "scheduled completed cancelled"
+        timestamptz created_at
+    }
+    
+    medications {
+        uuid id PK
+        uuid care_recipient_id FK
+        text name
+        text dosage
+        text instructions
+        boolean is_active
+        timestamptz created_at
+    }
+    
+    medication_schedules {
+        uuid id PK
+        uuid medication_id FK
+        time scheduled_time "When to take"
+        text frequency "daily weekly etc"
+        timestamptz created_at
+    }
+    
+    medication_logs {
+        uuid id PK
+        uuid medication_schedule_id FK
+        uuid caregiver_id FK
+        text status "given skipped refused"
+        text notes
+        timestamptz logged_at
+        timestamptz created_at
+    }
+    </div>
+
+    <div class="legend">
+        <h2>📊 Table Summary</h2>
+        <ul>
+            <li><span class="table-name">profiles</span> - User accounts (extends Supabase auth). Role determines admin vs caregiver access.</li>
+            <li><span class="table-name">care_recipients</span> - The people being cared for. You can have multiple.</li>
+            <li><span class="table-name">caregivers</span> - Extended info for users who are caregivers (phone, active status).</li>
+            <li><span class="table-name">schedules</span> - Weekly recurring shifts. Links a caregiver to a care recipient on specific days/times.</li>
+            <li><span class="table-name">tasks</span> - Things to do during a schedule (e.g., "Give breakfast", "Check vitals").</li>
+            <li><span class="table-name">task_logs</span> - Records when tasks are completed, skipped, or unable to complete.</li>
+            <li><span class="table-name">appointments</span> - One-time events like doctor visits. Assigned to a caregiver.</li>
+            <li><span class="table-name">medications</span> - Medications a care recipient takes.</li>
+            <li><span class="table-name">medication_schedules</span> - When each medication should be given (supports multiple times per day).</li>
+            <li><span class="table-name">medication_logs</span> - Records when medications are given, skipped, or refused.</li>
+        </ul>
+    </div>
+
+    <div class="legend">
+        <h2>🔗 Key Relationships</h2>
+        <ul>
+            <li><strong>Care Recipient → Schedules:</strong> Each care recipient can have multiple weekly schedules with different caregivers.</li>
+            <li><strong>Schedule → Tasks:</strong> Each schedule has a list of tasks to complete during that shift.</li>
+            <li><strong>Caregiver → Logs:</strong> Caregivers create logs when they complete tasks or give medications.</li>
+            <li><strong>Medication → Schedules:</strong> One medication can have multiple scheduled times (e.g., morning and evening).</li>
+        </ul>
+    </div>
+
+    <div class="legend">
+        <h2>🔐 Security (RLS)</h2>
+        <ul>
+            <li><strong>Admin:</strong> Full access to everything.</li>
+            <li><strong>Caregiver:</strong> Can only see schedules/tasks/appointments assigned to them. Can create logs for their own work.</li>
+        </ul>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            er: {
+                layoutDirection: 'TB',
+                minEntityWidth: 100,
+                minEntityHeight: 75,
+                entityPadding: 15
+            }
+        });
+    </script>
+</body>
+</html>
