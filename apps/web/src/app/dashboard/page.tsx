@@ -1,10 +1,8 @@
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
-import type { Tables } from '@/types/database'
-
-type Task = Tables<'tasks'>
+import { t } from '@/lib/translations'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -15,259 +13,230 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Get user profile with role
+  // Get user profile to check role
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
 
-  if (!profile) {
-    redirect('/login')
-  }
-
-  const isAdmin = profile.role === 'admin'
+  const isAdmin = profile?.role === 'admin'
 
   if (isAdmin) {
-    return <AdminDashboard />
-  }
+    // Admin dashboard
+    const { count: caregiverCount } = await supabase
+      .from('caregivers')
+      .select('*', { count: 'exact', head: true })
 
-  return <CaregiverDashboard />
-}
+    const { count: scheduleCount } = await supabase
+      .from('schedules')
+      .select('*', { count: 'exact', head: true })
 
-async function AdminDashboard() {
-  const supabase = await createClient()
+    const { count: appointmentCount } = await supabase
+      .from('appointments')
+      .select('*', { count: 'exact', head: true })
+      .gte('appointment_date', new Date().toISOString().split('T')[0])
 
-  // Get counts for dashboard
-  const [
-    { count: careRecipientsCount },
-    { count: caregiversCount },
-    { count: schedulesCount },
-    { count: appointmentsCount },
-  ] = await Promise.all([
-    supabase.from('care_recipients').select('*', { count: 'exact', head: true }),
-    supabase.from('caregivers').select('*', { count: 'exact', head: true }),
-    supabase.from('schedules').select('*', { count: 'exact', head: true }),
-    supabase.from('appointments').select('*', { count: 'exact', head: true }).eq('status', 'scheduled'),
-  ])
+    const { count: medicationCount } = await supabase
+      .from('medications')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
 
-  const stats = [
-    { label: 'Care Recipients', value: careRecipientsCount || 0, href: '/dashboard/care-recipients' },
-    { label: 'Caregivers', value: caregiversCount || 0, href: '/dashboard/caregivers' },
-    { label: 'Schedules', value: schedulesCount || 0, href: '/dashboard/schedules' },
-    { label: 'Upcoming Appointments', value: appointmentsCount || 0, href: '/dashboard/appointments' },
-  ]
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{t.dashboard.title}</h1>
+          <p className="text-muted-foreground">{t.dashboard.welcomeAdmin}, {profile?.full_name}</p>
+        </div>
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600">Manage care coordination for your team</p>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <Link key={stat.label} href={stat.href}>
+        <div className="grid grid-cols-2 gap-4">
+          <Link href="/dashboard/caregivers">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardHeader className="pb-2">
-                <CardDescription>{stat.label}</CardDescription>
+                <CardTitle className="text-lg">{t.nav.caregivers}</CardTitle>
+                <CardDescription>{t.dashboard.manageCaregivers}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-blue-600">{stat.value}</p>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{caregiverCount || 0}</p>
               </CardContent>
             </Card>
           </Link>
-        ))}
-      </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+          <Link href="/dashboard/schedules">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">{t.nav.schedules}</CardTitle>
+                <CardDescription>{t.dashboard.manageSchedules}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{scheduleCount || 0}</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/appointments">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">{t.nav.appointments}</CardTitle>
+                <CardDescription>{t.dashboard.upcomingAppointments}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{appointmentCount || 0}</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/medications">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">{t.nav.medications}</CardTitle>
+                <CardDescription>{t.dashboard.activeMedications}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{medicationCount || 0}</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // Caregiver dashboard
+  const { data: caregiver } = await supabase
+    .from('caregivers')
+    .select('*')
+    .eq('profile_id', user.id)
+    .eq('is_active', true)
+    .single()
+
+  if (!caregiver) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{t.dashboard.title}</h1>
+          <p className="text-muted-foreground">{t.dashboard.welcomeCaregiver}, {profile?.full_name}</p>
+        </div>
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Link 
-              href="/dashboard/care-recipients/new" 
-              className="block p-3 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-            >
-              + Add Care Recipient
-            </Link>
-            <Link 
-              href="/dashboard/caregivers/new" 
-              className="block p-3 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
-            >
-              + Add Caregiver
-            </Link>
-            <Link 
-              href="/dashboard/schedules/new" 
-              className="block p-3 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors"
-            >
-              + Create Schedule
-            </Link>
-            <Link 
-              href="/dashboard/appointments/new" 
-              className="block p-3 rounded-lg bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors"
-            >
-              + Schedule Appointment
-            </Link>
+          <CardContent className="pt-6">
+            <p className="text-muted-foreground">{t.dashboard.notAssigned}</p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Getting Started</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-gray-600">
-            <p>1. <strong>Add Care Recipients</strong> - The people being cared for</p>
-            <p>2. <strong>Add Caregivers</strong> - Invite team members to help</p>
-            <p>3. <strong>Create Schedules</strong> - Assign caregivers to shifts</p>
-            <p>4. <strong>Add Tasks</strong> - Define what needs to be done each shift</p>
-            <p>5. <strong>Set Up Medications</strong> - Track medication schedules</p>
-          </CardContent>
-        </Card>
       </div>
-    </div>
-  )
-}
+    )
+  }
 
-async function CaregiverDashboard() {
-  const supabase = await createClient()
-  
-  // Get today's day of week (0 = Sunday, 6 = Saturday)
+  // Get today's schedules for this caregiver (using day_of_week)
   const today = new Date()
-  const dayOfWeek = today.getDay()
+  const todayDayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
   const todayStr = today.toISOString().split('T')[0]
-
-  // Get caregiver's schedules for today
-  const { data: schedules } = await supabase
+  
+  const { data: todaySchedules } = await supabase
     .from('schedules')
     .select(`
       *,
       care_recipients (name),
-      tasks (
-        id,
-        title,
-        description,
-        due_time,
-        sort_order
-      )
+      tasks (id, title)
     `)
-    .eq('day_of_week', dayOfWeek)
+    .eq('caregiver_id', caregiver.id)
+    .eq('day_of_week', todayDayOfWeek)
 
-  // Get today's task logs
+  // Get today's task logs to count completed tasks
   const { data: taskLogs } = await supabase
     .from('task_logs')
     .select('task_id, status')
+    .eq('caregiver_id', caregiver.id)
     .eq('log_date', todayStr)
+    .eq('status', 'completed')
 
-  const taskLogMap = new Map(taskLogs?.map(log => [log.task_id, log.status]) || [])
-
-  // Get shift notes from previous shifts
-  const { data: shiftNotes } = await supabase
-    .from('shift_notes')
-    .select('*, caregivers(profiles(full_name))')
-    .eq('shift_date', todayStr)
-    .eq('is_urgent', true)
+  const completedTaskIds = new Set(taskLogs?.map(log => log.task_id) || [])
+  const totalTasks = todaySchedules?.reduce((acc, s) => acc + (s.tasks?.length || 0), 0) || 0
+  const completedTasks = todaySchedules?.reduce((acc, s) => 
+    acc + (s.tasks?.filter((t: { id: string }) => completedTaskIds.has(t.id))?.length || 0), 0) || 0
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Today&apos;s Schedule</h1>
-        <p className="text-gray-600">
-          {today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-        </p>
+        <h1 className="text-2xl font-bold text-foreground">{t.dashboard.title}</h1>
+        <p className="text-muted-foreground">{t.dashboard.welcomeCaregiver}, {profile?.full_name}</p>
       </div>
 
-      {/* Urgent Notes */}
-      {shiftNotes && shiftNotes.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-red-700 text-lg">⚠️ Urgent Notes</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {shiftNotes.map((note) => (
-              <div key={note.id} className="p-3 bg-white rounded-lg border border-red-200">
-                <p className="text-gray-900">{note.notes}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  From previous shift
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.dashboard.todaySchedule}</CardTitle>
+          <CardDescription>{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {todaySchedules && todaySchedules.length > 0 ? (
+            <div className="space-y-4">
+              {todaySchedules.map((schedule) => {
+                const scheduleTaskIds = schedule.tasks?.map((task: { id: string }) => task.id) || []
+                const scheduleCompletedCount = scheduleTaskIds.filter((id: string) => completedTaskIds.has(id)).length
+                const scheduleTotalCount = schedule.tasks?.length || 0
+                const allCompleted = scheduleTotalCount > 0 && scheduleCompletedCount === scheduleTotalCount
+                const someCompleted = scheduleCompletedCount > 0 && scheduleCompletedCount < scheduleTotalCount
+                
+                return (
+                  <div key={schedule.id} className="border border-border rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="font-medium text-foreground">{schedule.care_recipients?.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {schedule.start_time?.slice(0, 5)} - {schedule.end_time?.slice(0, 5)}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        allCompleted ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                        someCompleted ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {allCompleted ? t.common.completed :
+                         someCompleted ? t.common.inProgress :
+                         t.common.pending}
+                      </span>
+                    </div>
+                    {schedule.tasks && schedule.tasks.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          {t.dashboard.tasks}: {scheduleCompletedCount}/{scheduleTotalCount} {t.common.completed.toLowerCase()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">{t.dashboard.noSchedulesToday}</p>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Today's Schedules */}
-      {schedules && schedules.length > 0 ? (
-        <div className="space-y-4">
-          {schedules.map((schedule) => (
-            <Card key={schedule.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{schedule.care_recipients?.name}</span>
-                  <span className="text-sm font-normal text-gray-500">
-                    {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {schedule.tasks && schedule.tasks.length > 0 ? (
-                  <ul className="space-y-2">
-                    {(schedule.tasks as Task[])
-                      .sort((a: Task, b: Task) => {
-                        if (a.due_time && b.due_time) return a.due_time.localeCompare(b.due_time)
-                        if (a.due_time) return -1
-                        if (b.due_time) return 1
-                        return a.sort_order - b.sort_order
-                      })
-                      .map((task: Task) => {
-                        const status = taskLogMap.get(task.id)
-                        return (
-                          <li 
-                            key={task.id} 
-                            className={`flex items-center justify-between p-3 rounded-lg border ${
-                              status === 'completed' 
-                                ? 'bg-green-50 border-green-200' 
-                                : status === 'skipped'
-                                ? 'bg-yellow-50 border-yellow-200'
-                                : 'bg-gray-50 border-gray-200'
-                            }`}
-                          >
-                            <div>
-                              <p className={`font-medium ${status === 'completed' ? 'line-through text-gray-500' : ''}`}>
-                                {task.title}
-                              </p>
-                              {task.due_time && (
-                                <p className="text-xs text-gray-500">Due: {task.due_time.slice(0, 5)}</p>
-                              )}
-                            </div>
-                            <span className={`text-xs px-2 py-1 rounded ${
-                              status === 'completed' 
-                                ? 'bg-green-100 text-green-700' 
-                                : status === 'skipped'
-                                ? 'bg-yellow-100 text-yellow-700'
-                                : 'bg-gray-100 text-gray-600'
-                            }`}>
-                              {status || 'Pending'}
-                            </span>
-                          </li>
-                        )
-                      })}
-                  </ul>
-                ) : (
-                  <p className="text-gray-500 text-center py-4">No tasks assigned for this shift</p>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-gray-500">No schedules assigned for today</p>
-          </CardContent>
-        </Card>
-      )}
+      <div className="grid grid-cols-2 gap-4">
+        <Link href="/dashboard/tasks">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{t.nav.tasks}</CardTitle>
+              <CardDescription>{t.dashboard.todayTasks}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{completedTasks}/{totalTasks}</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/medications">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{t.nav.medications}</CardTitle>
+              <CardDescription>{t.dashboard.medicationLogs}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">{t.dashboard.viewAndLog}</p>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
     </div>
   )
 }

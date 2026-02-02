@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { t } from '@/lib/translations'
 
 export default async function CareRecipientsPage() {
   const supabase = await createClient()
@@ -31,11 +32,11 @@ export default async function CareRecipientsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Care Recipients</h1>
-          <p className="text-gray-600">Manage the people being cared for</p>
+          <h1 className="text-2xl font-bold text-foreground">{t.careRecipients.title}</h1>
+          <p className="text-muted-foreground">{t.careRecipients.subtitle}</p>
         </div>
         <Link href="/dashboard/care-recipients/new">
-          <Button>+ Add Care Recipient</Button>
+          <Button>{t.careRecipients.addNew}</Button>
         </Link>
       </div>
 
@@ -49,12 +50,12 @@ export default async function CareRecipientsPage() {
                 </CardHeader>
                 <CardContent>
                   {recipient.date_of_birth && (
-                    <p className="text-sm text-gray-500">
-                      Born: {new Date(recipient.date_of_birth).toLocaleDateString()}
+                    <p className="text-sm text-muted-foreground">
+                      {t.careRecipients.born}: {new Date(recipient.date_of_birth).toLocaleDateString('es-ES')}
                     </p>
                   )}
                   {recipient.notes && (
-                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                       {recipient.notes}
                     </p>
                   )}
@@ -66,9 +67,9 @@ export default async function CareRecipientsPage() {
       ) : (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-gray-500 mb-4">No care recipients yet</p>
+            <p className="text-muted-foreground mb-4">{t.careRecipients.noRecipients}</p>
             <Link href="/dashboard/care-recipients/new">
-              <Button>Add Your First Care Recipient</Button>
+              <Button>{t.careRecipients.addFirst}</Button>
             </Link>
           </CardContent>
         </Card>
