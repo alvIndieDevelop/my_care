@@ -2,154 +2,127 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
+import { t } from '@/lib/translations'
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError(null)
     setLoading(true)
+    setError(null)
 
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            role: 'caregiver', // Default role for new signups
-          },
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const fullName = formData.get('fullName') as string
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          role: 'caregiver', // Default role, admin can change later
         },
-      })
+      },
+    })
 
-      if (error) {
-        setError(error.message)
-        return
-      }
-
-      setSuccess(true)
-    } catch {
-      setError('An unexpected error occurred')
-    } finally {
+    if (error) {
+      setError(t.auth.signupError)
       setLoading(false)
+      return
     }
+
+    setSuccess(true)
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center text-green-600">
-              Check your email
-            </CardTitle>
-            <CardDescription className="text-center">
-              We&apos;ve sent you a confirmation link. Please check your email to verify your account.
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold text-green-600 dark:text-green-400">✓</CardTitle>
+            <CardDescription>
+              {t.auth.checkEmail}
             </CardDescription>
           </CardHeader>
-          <CardFooter>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => router.push('/login')}
-            >
-              Back to Login
-            </Button>
-          </CardFooter>
+          <CardContent className="text-center">
+            <Link href="/login">
+              <Button variant="outline">{t.auth.login}</Button>
+            </Link>
+          </CardContent>
         </Card>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Create an Account
-          </CardTitle>
-          <CardDescription className="text-center">
-            Sign up to join the care team
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-blue-600 dark:text-blue-400">MyCare</CardTitle>
+          <CardDescription>
+            {t.auth.signupTitle}
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSignup}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                {error}
-              </div>
-            )}
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t.auth.fullName}</Label>
               <Input
                 id="fullName"
+                name="fullName"
                 type="text"
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Juan Pérez"
                 required
-                disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t.auth.email}</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
                 required
-                disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t.auth.password}</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
                 minLength={6}
-                disabled={loading}
+                required
               />
-              <p className="text-xs text-gray-500">
-                Password must be at least 6 characters
-              </p>
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={loading}
-            >
-              {loading ? 'Creating account...' : 'Create Account'}
+            {error && (
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            )}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? t.auth.signingUp : t.auth.signup}
             </Button>
-            <p className="text-sm text-center text-gray-600">
-              Already have an account?{' '}
-              <Link href="/login" className="text-blue-600 hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
+          </form>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            {t.auth.hasAccount}{' '}
+            <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+              {t.auth.login}
+            </Link>
+          </p>
+        </CardContent>
       </Card>
     </div>
   )

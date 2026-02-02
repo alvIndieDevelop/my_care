@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/theme-toggle'
 import type { Tables } from '@/types/database'
+import { t } from '@/lib/translations'
 
 interface DashboardNavProps {
   profile: Tables<'profiles'>
@@ -23,29 +25,31 @@ export function DashboardNav({ profile }: DashboardNavProps) {
   }
 
   const adminLinks = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/dashboard/care-recipients', label: 'Care Recipients' },
-    { href: '/dashboard/caregivers', label: 'Caregivers' },
-    { href: '/dashboard/schedules', label: 'Schedules' },
-    { href: '/dashboard/appointments', label: 'Appointments' },
-    { href: '/dashboard/medications', label: 'Medications' },
+    { href: '/dashboard', label: t.nav.dashboard },
+    { href: '/dashboard/care-recipients', label: t.nav.careRecipients },
+    { href: '/dashboard/caregivers', label: t.nav.caregivers },
+    { href: '/dashboard/schedules', label: t.nav.schedules },
+    { href: '/dashboard/appointments', label: t.nav.appointments },
+    { href: '/dashboard/medications', label: t.nav.medications },
   ]
 
   const caregiverLinks = [
-    { href: '/dashboard', label: 'Today' },
-    { href: '/dashboard/tasks', label: 'Tasks' },
-    { href: '/dashboard/medications', label: 'Medications' },
-    { href: '/dashboard/appointments', label: 'Appointments' },
+    { href: '/dashboard', label: t.nav.today },
+    { href: '/dashboard/tasks', label: t.nav.tasks },
+    { href: '/dashboard/medications', label: t.nav.medications },
+    { href: '/dashboard/appointments', label: t.nav.appointments },
   ]
 
   const links = isAdmin ? adminLinks : caregiverLinks
 
+  const roleLabel = profile.role === 'admin' ? 'Administrador' : 'Cuidador'
+
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-background border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/dashboard" className="font-bold text-xl text-blue-600">
+          <Link href="/dashboard" className="font-bold text-xl text-blue-600 dark:text-blue-400">
             MyCare
           </Link>
 
@@ -57,8 +61,8 @@ export function DashboardNav({ profile }: DashboardNavProps) {
                 href={link.href}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   pathname === link.href
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                 }`}
               >
                 {link.label}
@@ -67,13 +71,14 @@ export function DashboardNav({ profile }: DashboardNavProps) {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-gray-900">{profile.full_name}</p>
-              <p className="text-xs text-gray-500 capitalize">{profile.role}</p>
+              <p className="text-sm font-medium text-foreground">{profile.full_name}</p>
+              <p className="text-xs text-muted-foreground">{roleLabel}</p>
             </div>
             <Button variant="outline" size="sm" onClick={handleSignOut}>
-              Sign Out
+              {t.auth.signOut}
             </Button>
           </div>
         </div>
@@ -86,8 +91,8 @@ export function DashboardNav({ profile }: DashboardNavProps) {
               href={link.href}
               className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                 pathname === link.href
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               {link.label}
