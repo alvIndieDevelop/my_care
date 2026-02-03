@@ -11,7 +11,11 @@ import { t } from '@/lib/translations'
 
 interface CaregiverActionsProps {
   caregiver: Tables<'caregivers'> & {
-    profiles: Tables<'profiles'> | null
+    profiles: {
+      id: string
+      full_name: string
+      email: string
+    } | null
   }
 }
 

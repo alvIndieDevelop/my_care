@@ -36,11 +36,20 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
       care_recipients (id, name),
       caregivers (
         id,
+        full_name,
+        profile_id,
         profiles (full_name, email)
       )
     `)
     .eq('id', id)
     .single()
+
+  // Helper function to get caregiver name
+  const getCaregiverName = () => {
+    if (!schedule?.caregivers) return 'Desconocido'
+    if (schedule.caregivers.profiles?.full_name) return schedule.caregivers.profiles.full_name
+    return schedule.caregivers.full_name || 'Desconocido'
+  }
 
   if (!schedule) {
     notFound()
@@ -98,7 +107,10 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
                 href={`/dashboard/caregivers/${schedule.caregivers?.id}`}
                 className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
-                {schedule.caregivers?.profiles?.full_name || 'Desconocido'}
+                {getCaregiverName()}
+                {!schedule.caregivers?.profile_id && (
+                  <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">(Invitado)</span>
+                )}
               </Link>
             </div>
             <div>

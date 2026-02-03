@@ -94,25 +94,34 @@ export type Database = {
       }
       caregivers: {
         Row: {
+          access_code: string | null
           created_at: string
+          email: string | null
+          full_name: string | null
           id: string
           is_active: boolean
           phone: string | null
-          profile_id: string
+          profile_id: string | null
         }
         Insert: {
+          access_code?: string | null
           created_at?: string
+          email?: string | null
+          full_name?: string | null
           id?: string
           is_active?: boolean
           phone?: string | null
-          profile_id: string
+          profile_id?: string | null
         }
         Update: {
+          access_code?: string | null
           created_at?: string
+          email?: string | null
+          full_name?: string | null
           id?: string
           is_active?: boolean
           phone?: string | null
-          profile_id?: string
+          profile_id?: string | null
         }
         Relationships: [
           {

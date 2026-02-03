@@ -24,6 +24,8 @@ interface CareRecipient {
 
 interface Caregiver {
   id: string
+  full_name: string | null
+  profile_id: string | null
   profiles: {
     full_name: string
   } | null
@@ -144,11 +146,15 @@ export function ScheduleForm({
             <SelectValue placeholder={t.schedules.selectCaregiver} />
           </SelectTrigger>
           <SelectContent>
-            {caregivers.map((caregiver) => (
-              <SelectItem key={caregiver.id} value={caregiver.id}>
-                {caregiver.profiles?.full_name || 'Desconocido'}
-              </SelectItem>
-            ))}
+            {caregivers.map((caregiver) => {
+              const name = caregiver.profiles?.full_name || caregiver.full_name || 'Desconocido'
+              const isGuest = !caregiver.profile_id
+              return (
+                <SelectItem key={caregiver.id} value={caregiver.id}>
+                  {name}{isGuest ? ' (Invitado)' : ''}
+                </SelectItem>
+              )
+            })}
           </SelectContent>
         </Select>
         {caregivers.length === 0 && (

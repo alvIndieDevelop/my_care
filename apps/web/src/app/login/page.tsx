@@ -84,6 +84,21 @@ export default function LoginPage() {
               {t.auth.signup}
             </Link>
           </p>
+
+          <div className="mt-6 pt-6 border-t border-border">
+            <p className="text-center text-sm text-muted-foreground mb-3">
+              ¿Eres cuidador invitado?
+            </p>
+            <Link href="/guest" className="block">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full min-h-[44px]"
+              >
+                🔑 Ingresar con código de acceso
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

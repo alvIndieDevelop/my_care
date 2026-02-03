@@ -30,11 +30,20 @@ export default async function SchedulesPage() {
       care_recipients (id, name),
       caregivers (
         id,
+        full_name,
+        profile_id,
         profiles (full_name)
       )
     `)
     .order('day_of_week')
     .order('start_time')
+
+  // Helper function to get caregiver name
+  const getCaregiverName = (caregiver: { full_name: string | null; profile_id: string | null; profiles: { full_name: string } | null } | null) => {
+    if (!caregiver) return t.schedules.unassigned
+    if (caregiver.profiles?.full_name) return caregiver.profiles.full_name
+    return caregiver.full_name || t.schedules.unassigned
+  }
 
   type ScheduleWithRelations = NonNullable<typeof schedules>[number]
 
@@ -83,7 +92,7 @@ export default async function SchedulesPage() {
                               {schedule.care_recipients?.name}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {schedule.caregivers?.profiles?.full_name || t.schedules.unassigned}
+                              {getCaregiverName(schedule.caregivers)}
                             </p>
                           </div>
                           <div className="text-right">

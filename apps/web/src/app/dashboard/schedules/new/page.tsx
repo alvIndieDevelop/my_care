@@ -38,6 +38,8 @@ export default async function NewSchedulePage({ searchParams }: NewSchedulePageP
     .from('caregivers')
     .select(`
       id,
+      full_name,
+      profile_id,
       profiles (full_name)
     `)
     .eq('is_active', true)
