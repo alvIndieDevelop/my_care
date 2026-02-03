@@ -197,12 +197,12 @@ export default function NewAppointmentPage() {
 
             <div className="space-y-2">
               <Label htmlFor="caregiver">{t.appointments.assignedCaregiver}</Label>
-              <Select value={caregiverId} onValueChange={setCaregiverId}>
+              <Select value={caregiverId} onValueChange={(value) => setCaregiverId(value === 'none' ? '' : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder={t.appointments.selectCaregiverOptional} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t.common.none}</SelectItem>
+                  <SelectItem value="none">{t.common.none}</SelectItem>
                   {caregivers.map((caregiver) => {
                     const name = caregiver.profiles?.full_name || caregiver.full_name || 'Desconocido'
                     const isGuest = !caregiver.profile_id
