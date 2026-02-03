@@ -330,6 +330,30 @@ export const t = {
     failedToUpdateTaskStatus: 'Error al actualizar el estado de la tarea',
     notRegisteredAsCaregiver: 'No estás registrado como cuidador.',
   },
+
+  // Guest Access
+  guestAccess: {
+    title: 'Acceso de Cuidador',
+    subtitle: 'Ingresa tu código de acceso para ver tu horario',
+    accessCode: 'Código de Acceso',
+    accessCodePlaceholder: 'Ingresa tu código de 6 dígitos',
+    enterCode: 'Ingresar',
+    entering: 'Ingresando...',
+    invalidCode: 'Código de acceso inválido. Por favor verifica e intenta de nuevo.',
+    inactiveCaregiver: 'Tu cuenta de cuidador está inactiva. Contacta al administrador.',
+    shareCode: 'Compartir Código',
+    accessCodeLabel: 'Código de Acceso',
+    accessCodeHelp: 'Comparte este código con el cuidador para que pueda acceder a su horario',
+    copyCode: 'Copiar Código',
+    codeCopied: '¡Código copiado!',
+    regenerateCode: 'Regenerar Código',
+    regenerateConfirm: '¿Estás seguro de que quieres regenerar el código? El código anterior dejará de funcionar.',
+    guestSession: 'Sesión de Invitado',
+    exitGuestSession: 'Salir',
+    viewingAs: 'Viendo como',
+    haveAccount: '¿Tienes cuenta?',
+    loginWithEmail: 'Iniciar sesión con correo',
+  },
 }
 
 // Date formatting helper for Spanish

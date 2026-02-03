@@ -103,12 +103,43 @@ export default async function CaregiverDetailPage({ params }: CaregiverDetailPag
         </div>
       </div>
 
-      {/* Guest caregiver info banner */}
+      {/* Guest caregiver access code card */}
       {isGuestCaregiver && (
-        <div className="p-3 sm:p-4 rounded-md bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs sm:text-sm">
-          <p className="font-medium mb-1">ℹ️ Cuidador Invitado</p>
-          <p>{t.caregivers.guestCaregiverNote}</p>
-        </div>
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+          <CardHeader className="p-4 sm:p-6 pb-2">
+            <CardTitle className="text-base sm:text-lg text-amber-800 dark:text-amber-300 flex items-center gap-2">
+              🔑 {t.guestAccess.accessCodeLabel}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+            {caregiver.access_code ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <span className="text-3xl font-mono font-bold tracking-widest text-foreground">
+                    {caregiver.access_code}
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-400">
+                  {t.guestAccess.accessCodeHelp}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <a 
+                    href={`/guest`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Ver página de acceso →
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                El código de acceso se generará automáticamente. Recarga la página si no aparece.
+              </p>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
