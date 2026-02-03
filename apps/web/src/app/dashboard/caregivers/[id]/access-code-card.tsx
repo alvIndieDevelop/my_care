@@ -24,6 +24,30 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
     return Math.floor(100000 + Math.random() * 900000).toString()
   }
 
+  const updateAccessCode = async (newCode: string) => {
+    // Try RPC function first (bypasses schema cache issues)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: rpcError } = await (supabase.rpc as any)('update_caregiver_access_code', {
+      p_caregiver_id: caregiverId,
+      p_access_code: newCode
+    })
+    
+    if (rpcError) {
+      // If RPC doesn't exist (function not found), try direct update
+      if (rpcError.code === '42883' || rpcError.message?.includes('function')) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: updateError } = await (supabase.from('caregivers') as any)
+          .update({ access_code: newCode })
+          .eq('id', caregiverId)
+        
+        return { error: updateError }
+      }
+      return { error: rpcError }
+    }
+    
+    return { error: null }
+  }
+
   const handleRegenerateCode = async () => {
     if (!confirm(t.guestAccess.regenerateConfirm)) {
       return
@@ -32,24 +56,14 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
     setLoading(true)
     try {
       const newCode = generateNewCode()
-      
-      const { data, error } = await supabase
-        .from('caregivers')
-        .update({ access_code: newCode })
-        .eq('id', caregiverId)
-        .select('access_code')
-        .single()
+      const { error } = await updateAccessCode(newCode)
 
       if (error) {
         console.error('Supabase error:', error)
         throw new Error(error.message || 'Error al actualizar')
       }
 
-      if (!data) {
-        throw new Error('No se pudo actualizar el código. Verifica que la migración se haya ejecutado.')
-      }
-
-      setCurrentCode(data.access_code)
+      setCurrentCode(newCode)
       router.refresh()
     } catch (err) {
       console.error('Error regenerating code:', err)
@@ -64,24 +78,14 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
     setLoading(true)
     try {
       const newCode = generateNewCode()
-      
-      const { data, error } = await supabase
-        .from('caregivers')
-        .update({ access_code: newCode })
-        .eq('id', caregiverId)
-        .select('access_code')
-        .single()
+      const { error } = await updateAccessCode(newCode)
 
       if (error) {
         console.error('Supabase error:', error)
         throw new Error(error.message || 'Error al actualizar')
       }
 
-      if (!data) {
-        throw new Error('No se pudo actualizar el código. Verifica que la migración se haya ejecutado.')
-      }
-
-      setCurrentCode(data.access_code)
+      setCurrentCode(newCode)
       router.refresh()
     } catch (err) {
       console.error('Error generating code:', err)

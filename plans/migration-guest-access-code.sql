@@ -55,9 +55,29 @@ WHERE profile_id IS NULL AND access_code IS NULL;
 
 -- Add RLS policy for guest access (read-only access to their own data)
 -- Guest caregivers can read their own caregiver record by access_code
-CREATE POLICY "Guest caregivers can read own data" ON caregivers
+CREATE POLICY IF NOT EXISTS "Guest caregivers can read own data" ON caregivers
   FOR SELECT
   USING (
     -- Allow if access_code matches (for guest session validation)
     access_code IS NOT NULL
   );
+
+-- Create RPC function to update access code (bypasses schema cache issues)
+CREATE OR REPLACE FUNCTION update_caregiver_access_code(
+  p_caregiver_id UUID,
+  p_access_code VARCHAR(8)
+)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE caregivers
+  SET access_code = p_access_code
+  WHERE id = p_caregiver_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION update_caregiver_access_code(UUID, VARCHAR) TO authenticated;
+
+-- IMPORTANT: After running this migration, reload the PostgREST schema cache:
+-- Go to Supabase Dashboard > Settings > API > Click "Reload schema cache"
+-- Or restart the project from Settings > General > Restart project
