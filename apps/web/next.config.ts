@@ -49,7 +49,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Add empty turbopack config to silence the webpack/turbopack conflict warning
+  // next-pwa uses webpack internally, so we need to acknowledge this
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);
