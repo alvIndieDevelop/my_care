@@ -33,13 +33,25 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
     })
     
     if (rpcError) {
-      // If RPC doesn't exist (function not found), try direct update
-      if (rpcError.code === '42883' || rpcError.message?.includes('function')) {
+      console.log('RPC error details:', JSON.stringify(rpcError))
+      
+      // If RPC doesn't exist (function not found) or empty error, try direct update
+      const isRpcNotFound = rpcError.code === '42883' ||
+                           rpcError.code === 'PGRST202' ||
+                           rpcError.message?.includes('function') ||
+                           rpcError.message?.includes('does not exist') ||
+                           Object.keys(rpcError).length === 0 // Empty error object
+      
+      if (isRpcNotFound) {
+        console.log('RPC not found, trying direct update...')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error: updateError } = await (supabase.from('caregivers') as any)
           .update({ access_code: newCode })
           .eq('id', caregiverId)
         
+        if (updateError) {
+          console.log('Direct update error:', JSON.stringify(updateError))
+        }
         return { error: updateError }
       }
       return { error: rpcError }
