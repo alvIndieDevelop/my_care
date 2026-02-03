@@ -33,18 +33,28 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
     try {
       const newCode = generateNewCode()
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('caregivers')
         .update({ access_code: newCode })
         .eq('id', caregiverId)
+        .select('access_code')
+        .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw new Error(error.message || 'Error al actualizar')
+      }
 
-      setCurrentCode(newCode)
+      if (!data) {
+        throw new Error('No se pudo actualizar el código. Verifica que la migración se haya ejecutado.')
+      }
+
+      setCurrentCode(data.access_code)
       router.refresh()
     } catch (err) {
       console.error('Error regenerating code:', err)
-      alert(t.errors.failedToUpdate)
+      const message = err instanceof Error ? err.message : t.errors.failedToUpdate
+      alert(message)
     } finally {
       setLoading(false)
     }
@@ -55,18 +65,28 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
     try {
       const newCode = generateNewCode()
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('caregivers')
         .update({ access_code: newCode })
         .eq('id', caregiverId)
+        .select('access_code')
+        .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw new Error(error.message || 'Error al actualizar')
+      }
 
-      setCurrentCode(newCode)
+      if (!data) {
+        throw new Error('No se pudo actualizar el código. Verifica que la migración se haya ejecutado.')
+      }
+
+      setCurrentCode(data.access_code)
       router.refresh()
     } catch (err) {
       console.error('Error generating code:', err)
-      alert(t.errors.failedToUpdate)
+      const message = err instanceof Error ? err.message : t.errors.failedToUpdate
+      alert(message)
     } finally {
       setLoading(false)
     }
