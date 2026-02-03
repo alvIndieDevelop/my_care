@@ -102,26 +102,33 @@ export default function GuestDashboardLayout({
       {/* Bottom Navigation for Guest */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
         <div className="flex items-center justify-around h-16">
-          <Link 
-            href="/guest/dashboard" 
+          <Link
+            href="/guest/dashboard"
             className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="text-xl">📋</span>
             <span className="text-xs mt-1">{t.nav.today}</span>
           </Link>
-          <Link 
-            href="/guest/dashboard/tasks" 
+          <Link
+            href="/guest/dashboard/tasks"
             className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="text-xl">✓</span>
             <span className="text-xs mt-1">{t.nav.tasks}</span>
           </Link>
-          <Link 
-            href="/guest/dashboard/medications" 
+          <Link
+            href="/guest/dashboard/medications"
             className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="text-xl">💊</span>
             <span className="text-xs mt-1">{t.nav.medications}</span>
+          </Link>
+          <Link
+            href="/guest/dashboard/appointments"
+            className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <span className="text-xl">📅</span>
+            <span className="text-xs mt-1">{t.nav.appointments}</span>
           </Link>
         </div>
       </nav>

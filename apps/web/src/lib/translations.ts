@@ -62,6 +62,29 @@ export const t = {
     medications: 'Medicamentos',
     tasks: 'Tareas',
     today: 'Hoy',
+    analytics: 'Análisis',
+  },
+
+  // Analytics
+  analytics: {
+    title: 'Análisis de Horas',
+    subtitle: 'Resumen de horas de trabajo de los cuidadores',
+    totalCaregivers: 'Cuidadores Activos',
+    totalWeeklyHours: 'Horas Semanales Totales',
+    averageHours: 'Promedio por Cuidador',
+    caregiverName: 'Cuidador',
+    weeklyHours: 'Horas/Semana',
+    shiftsPerWeek: 'Turnos/Semana',
+    status: 'Estado',
+    mostHours: 'Más horas',
+    leastHours: 'Menos horas',
+    noSchedules: 'Sin horarios',
+    insights: 'Observaciones',
+    insightMostHours: 'tiene más horas asignadas',
+    insightLeastHours: 'tiene menos horas asignadas',
+    insightBalanced: 'Las horas están balanceadas entre los cuidadores',
+    hoursUnit: 'horas',
+    shiftsUnit: 'turnos',
   },
 
   // Dashboard

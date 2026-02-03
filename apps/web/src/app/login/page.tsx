@@ -89,15 +89,15 @@ export default function LoginPage() {
             <p className="text-center text-sm text-muted-foreground mb-3">
               ¿Eres cuidador invitado?
             </p>
-            <Link href="/guest" className="block">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full min-h-[44px]"
-              >
+            <Button
+              asChild
+              variant="outline"
+              className="w-full min-h-[44px]"
+            >
+              <Link href="/guest">
                 🔑 Ingresar con código de acceso
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

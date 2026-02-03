@@ -81,24 +81,53 @@ export default async function SchedulesPage() {
                 <CardContent>
                   <div className="space-y-3">
                     {daySchedules.map((schedule) => (
-                      <Link 
-                        key={schedule.id} 
+                      <Link
+                        key={schedule.id}
                         href={`/dashboard/schedules/${schedule.id}`}
-                        className="block p-4 rounded-lg border border-border hover:bg-accent transition-colors"
+                        className="block p-4 rounded-lg border border-border hover:bg-accent hover:border-blue-300 dark:hover:border-blue-700 transition-all"
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {schedule.care_recipients?.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {getCaregiverName(schedule.caregivers)}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-medium text-blue-600 dark:text-blue-400">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                          {/* Time - prominent on the left */}
+                          <div className="flex items-center gap-2 sm:min-w-[120px]">
+                            <span className="text-lg">🕐</span>
+                            <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">
                               {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
-                            </p>
+                            </span>
+                          </div>
+                          
+                          {/* Divider - hidden on mobile */}
+                          <div className="hidden sm:block w-px h-10 bg-border" />
+                          
+                          {/* Care recipient and caregiver info */}
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {/* Care recipient */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">👤</span>
+                              <div>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide">Persona</p>
+                                <p className="font-medium text-foreground">
+                                  {schedule.care_recipients?.name}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Caregiver */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">👥</span>
+                              <div>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide">Cuidador</p>
+                                <p className="font-medium text-foreground">
+                                  {getCaregiverName(schedule.caregivers)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Arrow indicator */}
+                          <div className="hidden sm:flex items-center text-muted-foreground">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                           </div>
                         </div>
                       </Link>
