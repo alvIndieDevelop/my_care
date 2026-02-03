@@ -48,7 +48,7 @@ export function ScheduleActions({ schedule }: ScheduleActionsProps) {
     <div className="space-y-3">
       <Button 
         variant="outline" 
-        className="w-full justify-start text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
+        className="w-full justify-start min-h-[44px] text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
         onClick={handleDelete}
         disabled={loading}
       >

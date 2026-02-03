@@ -48,28 +48,28 @@ export default function NewCareRecipientPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <Link href="/dashboard/care-recipients" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+    <div className="max-w-2xl mx-auto px-4 sm:px-0">
+      <div className="mb-4 sm:mb-6">
+        <Link href="/dashboard/care-recipients" className="text-blue-600 dark:text-blue-400 hover:underline text-sm min-h-[44px] inline-flex items-center">
           ← {t.common.back} {t.careRecipients.title}
         </Link>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t.careRecipients.createTitle}</CardTitle>
-          <p className="text-sm text-muted-foreground">{t.careRecipients.createSubtitle}</p>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">{t.careRecipients.createTitle}</CardTitle>
+          <p className="text-xs sm:text-sm text-muted-foreground">{t.careRecipients.createSubtitle}</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+              <div className="p-3 text-xs sm:text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="name">{t.careRecipients.name} *</Label>
+              <Label htmlFor="name" className="text-sm">{t.careRecipients.name} *</Label>
               <Input
                 id="name"
                 type="text"
@@ -78,25 +78,27 @@ export default function NewCareRecipientPage() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={loading}
+                className="min-h-[44px]"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">{t.careRecipients.dateOfBirth}</Label>
+              <Label htmlFor="dateOfBirth" className="text-sm">{t.careRecipients.dateOfBirth}</Label>
               <Input
                 id="dateOfBirth"
                 type="date"
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
                 disabled={loading}
+                className="min-h-[44px]"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">{t.careRecipients.notes}</Label>
+              <Label htmlFor="notes" className="text-sm">{t.careRecipients.notes}</Label>
               <textarea
                 id="notes"
-                className="w-full min-h-[100px] px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full min-h-[100px] px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-sm sm:text-base"
                 placeholder="Condiciones médicas, preferencias, información importante..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -104,12 +106,12 @@ export default function NewCareRecipientPage() {
               />
             </div>
 
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={loading}>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button type="submit" disabled={loading} className="min-h-[44px]">
                 {loading ? t.careRecipients.creating : t.careRecipients.addNew}
               </Button>
-              <Link href="/dashboard/care-recipients">
-                <Button type="button" variant="outline">
+              <Link href="/dashboard/care-recipients" className="sm:w-auto">
+                <Button type="button" variant="outline" className="w-full min-h-[44px]">
                   {t.common.cancel}
                 </Button>
               </Link>

@@ -55,59 +55,59 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
     .order('due_time')
 
   return (
-    <div className="space-y-6">
-      <div className="mb-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="mb-4 sm:mb-6">
         <Link 
           href="/dashboard/schedules" 
-          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 min-h-[44px] inline-flex items-center"
         >
           ← {t.common.back} {t.schedules.title}
         </Link>
       </div>
 
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
             {schedule.care_recipients?.name} - {t.days.long[schedule.day_of_week]}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
           </p>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Schedule Info */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t.schedules.details}</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">{t.schedules.details}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 p-4 pt-0 sm:p-6 sm:pt-0">
             <div>
-              <p className="text-sm text-muted-foreground">{t.schedules.careRecipient}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t.schedules.careRecipient}</p>
               <Link 
                 href={`/dashboard/care-recipients/${schedule.care_recipients?.id}`}
-                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm sm:text-base min-h-[44px] inline-flex items-center"
               >
                 {schedule.care_recipients?.name}
               </Link>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">{t.schedules.caregiver}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t.schedules.caregiver}</p>
               <Link 
                 href={`/dashboard/caregivers/${schedule.caregivers?.id}`}
-                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm sm:text-base min-h-[44px] inline-flex items-center"
               >
                 {schedule.caregivers?.profiles?.full_name || 'Desconocido'}
               </Link>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">{t.schedules.day}</p>
-              <p className="font-medium text-foreground">{t.days.long[schedule.day_of_week]}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t.schedules.day}</p>
+              <p className="font-medium text-foreground text-sm sm:text-base">{t.days.long[schedule.day_of_week]}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">{t.schedules.time}</p>
-              <p className="font-medium text-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">{t.schedules.time}</p>
+              <p className="font-medium text-foreground text-sm sm:text-base">
                 {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
               </p>
             </div>
@@ -116,10 +116,10 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
 
         {/* Actions */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t.caregivers.actions}</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">{t.caregivers.actions}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <ScheduleActions schedule={schedule} />
           </CardContent>
         </Card>
@@ -127,12 +127,12 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
 
       {/* Tasks */}
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{t.schedules.tasksForShift}</CardTitle>
+            <CardTitle className="text-base sm:text-lg">{t.schedules.tasksForShift}</CardTitle>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
           <TaskList scheduleId={id} tasks={tasks || []} />
         </CardContent>
       </Card>

@@ -112,40 +112,43 @@ export function TaskList({ scheduleId, tasks }: TaskListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Task List */}
       {tasks.length > 0 ? (
         <ul className="space-y-2">
           {tasks.map((task) => (
             <li key={task.id}>
               {editingTask === task.id ? (
-                <div className="p-4 rounded-lg border border-border bg-blue-50 dark:bg-blue-900/20 space-y-3">
+                <div className="p-3 sm:p-4 rounded-lg border border-border bg-blue-50 dark:bg-blue-900/20 space-y-3">
                   <div className="space-y-2">
-                    <Label htmlFor="editTitle">{t.tasks.taskTitle} *</Label>
+                    <Label htmlFor="editTitle" className="text-sm">{t.tasks.taskTitle} *</Label>
                     <Input
                       id="editTitle"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder={t.tasks.placeholder}
+                      className="min-h-[44px]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="editDescription">{t.tasks.description}</Label>
+                    <Label htmlFor="editDescription" className="text-sm">{t.tasks.description}</Label>
                     <Textarea
                       id="editDescription"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder={t.tasks.descriptionPlaceholder}
                       rows={2}
+                      className="text-sm sm:text-base"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="editDueTime">{t.tasks.dueTime} ({t.common.optional})</Label>
+                    <Label htmlFor="editDueTime" className="text-sm">{t.tasks.dueTime} ({t.common.optional})</Label>
                     <Input
                       id="editDueTime"
                       type="time"
                       value={dueTime}
                       onChange={(e) => setDueTime(e.target.value)}
+                      className="min-h-[44px]"
                     />
                   </div>
                   <div className="flex gap-2">
@@ -153,6 +156,7 @@ export function TaskList({ scheduleId, tasks }: TaskListProps) {
                       size="sm" 
                       onClick={() => handleUpdateTask(task.id)}
                       disabled={loading}
+                      className="min-h-[44px] flex-1 sm:flex-none"
                     >
                       {t.common.save}
                     </Button>
@@ -160,17 +164,18 @@ export function TaskList({ scheduleId, tasks }: TaskListProps) {
                       size="sm" 
                       variant="outline" 
                       onClick={resetForm}
+                      className="min-h-[44px] flex-1 sm:flex-none"
                     >
                       {t.common.cancel}
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent">
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">{task.title}</p>
+                <div className="flex items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg border border-border hover:bg-accent gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground text-sm sm:text-base">{task.title}</p>
                     {task.description && (
-                      <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">{task.description}</p>
                     )}
                     {task.due_time && (
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
@@ -178,18 +183,19 @@ export function TaskList({ scheduleId, tasks }: TaskListProps) {
                       </p>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2 shrink-0">
                     <Button 
                       size="sm" 
                       variant="ghost"
                       onClick={() => startEditing(task)}
+                      className="min-h-[44px] min-w-[44px] p-2"
                     >
                       ✏️
                     </Button>
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                      className="min-h-[44px] min-w-[44px] p-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                       onClick={() => handleDeleteTask(task.id)}
                     >
                       🗑️
@@ -201,51 +207,54 @@ export function TaskList({ scheduleId, tasks }: TaskListProps) {
           ))}
         </ul>
       ) : (
-        <p className="text-center text-muted-foreground py-4">
+        <p className="text-center text-muted-foreground py-4 text-sm sm:text-base">
           {t.tasks.noTasksYet}
         </p>
       )}
 
       {/* Add Task Form */}
       {showForm ? (
-        <form onSubmit={handleAddTask} className="p-4 rounded-lg border border-border bg-muted space-y-3">
+        <form onSubmit={handleAddTask} className="p-3 sm:p-4 rounded-lg border border-border bg-muted space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="title">{t.tasks.taskTitle} *</Label>
+            <Label htmlFor="title" className="text-sm">{t.tasks.taskTitle} *</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t.tasks.placeholder}
               required
+              className="min-h-[44px]"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">{t.tasks.description}</Label>
+            <Label htmlFor="description" className="text-sm">{t.tasks.description}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t.tasks.descriptionPlaceholder}
               rows={2}
+              className="text-sm sm:text-base"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="dueTime">{t.tasks.dueTime} ({t.common.optional})</Label>
+            <Label htmlFor="dueTime" className="text-sm">{t.tasks.dueTime} ({t.common.optional})</Label>
             <Input
               id="dueTime"
               type="time"
               value={dueTime}
               onChange={(e) => setDueTime(e.target.value)}
+              className="min-h-[44px]"
             />
             <p className="text-xs text-muted-foreground">
               {t.tasks.dueTimeHelp}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button type="submit" disabled={loading}>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button type="submit" disabled={loading} className="min-h-[44px]">
               {loading ? t.tasks.adding : t.tasks.addTask}
             </Button>
-            <Button type="button" variant="outline" onClick={resetForm}>
+            <Button type="button" variant="outline" onClick={resetForm} className="min-h-[44px]">
               {t.common.cancel}
             </Button>
           </div>
@@ -253,7 +262,7 @@ export function TaskList({ scheduleId, tasks }: TaskListProps) {
       ) : (
         <Button 
           variant="outline" 
-          className="w-full"
+          className="w-full min-h-[44px]"
           onClick={() => setShowForm(true)}
         >
           {t.tasks.addTask}

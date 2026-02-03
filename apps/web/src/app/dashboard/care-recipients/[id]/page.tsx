@@ -169,16 +169,16 @@ export default async function CareRecipientDetailPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <Link href="/dashboard/care-recipients" className="text-sm text-blue-600 dark:text-blue-400 hover:underline mb-2 inline-block">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <Link href="/dashboard/care-recipients" className="text-sm text-blue-600 dark:text-blue-400 hover:underline mb-2 inline-flex items-center min-h-[44px]">
             ← {t.common.back}
           </Link>
-          <h1 className="text-2xl font-bold text-foreground">{careRecipient.name}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">{careRecipient.name}</h1>
           {careRecipient.date_of_birth && (
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               {t.careRecipients.born}: {new Date(careRecipient.date_of_birth).toLocaleDateString('es-ES', { 
                 year: 'numeric', 
                 month: 'long', 
@@ -192,49 +192,49 @@ export default async function CareRecipientDetailPage({
       {/* Notes */}
       {careRecipient.notes && (
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t.careRecipients.notes}</CardTitle>
+          <CardHeader className="pb-2 p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">{t.careRecipients.notes}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground whitespace-pre-wrap">{careRecipient.notes}</p>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+            <p className="text-sm sm:text-base text-muted-foreground whitespace-pre-wrap">{careRecipient.notes}</p>
           </CardContent>
         </Card>
       )}
 
       {/* Care Schedule */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-lg">📅 {t.careRecipients.careSchedule}</CardTitle>
-              <CardDescription>Quién cuida y cuándo</CardDescription>
+              <CardTitle className="text-base sm:text-lg">📅 {t.careRecipients.careSchedule}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Quién cuida y cuándo</CardDescription>
             </div>
             <Link href={`/dashboard/schedules/new?careRecipientId=${id}`}>
-              <Button size="sm" variant="outline">{t.careRecipients.addCareSchedule}</Button>
+              <Button size="sm" variant="outline" className="min-h-[44px] w-full sm:w-auto">{t.careRecipients.addCareSchedule}</Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
           {Object.keys(schedulesByDay).length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {[0, 1, 2, 3, 4, 5, 6].map(day => {
                 const daySchedules = schedulesByDay[day]
                 if (!daySchedules || daySchedules.length === 0) return null
                 
                 return (
                   <div key={day} className="border-b border-border pb-3 last:border-0">
-                    <p className="font-medium text-foreground mb-2">{t.days.long[day]}</p>
+                    <p className="font-medium text-foreground mb-2 text-sm sm:text-base">{t.days.long[day]}</p>
                     <div className="space-y-2">
                       {daySchedules.map(schedule => (
                         <Link 
                           key={schedule.id} 
                           href={`/dashboard/schedules/${schedule.id}`}
-                          className="flex items-center justify-between p-2 rounded hover:bg-accent"
+                          className="flex items-center justify-between p-2 rounded hover:bg-accent min-h-[44px]"
                         >
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs sm:text-sm text-muted-foreground">
                             {schedule.start_time?.slice(0, 5)} - {schedule.end_time?.slice(0, 5)}
                           </span>
-                          <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                          <span className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">
                             {schedule.caregivers?.profiles?.full_name || t.schedules.unassigned}
                           </span>
                         </Link>
@@ -246,9 +246,9 @@ export default async function CareRecipientDetailPage({
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-muted-foreground mb-4">{t.careRecipients.noCareSchedule}</p>
+              <p className="text-muted-foreground mb-4 text-sm sm:text-base">{t.careRecipients.noCareSchedule}</p>
               <Link href={`/dashboard/schedules/new?careRecipientId=${id}`}>
-                <Button size="sm">{t.careRecipients.addCareSchedule}</Button>
+                <Button size="sm" className="min-h-[44px]">{t.careRecipients.addCareSchedule}</Button>
               </Link>
             </div>
           )}
@@ -257,43 +257,43 @@ export default async function CareRecipientDetailPage({
 
       {/* Medications */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-lg">💊 {t.careRecipients.medicationsList}</CardTitle>
-              <CardDescription>Medicamentos y horarios</CardDescription>
+              <CardTitle className="text-base sm:text-lg">💊 {t.careRecipients.medicationsList}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Medicamentos y horarios</CardDescription>
             </div>
             <Link href={`/dashboard/medications/new?careRecipientId=${id}`}>
-              <Button size="sm" variant="outline">{t.careRecipients.addMedication}</Button>
+              <Button size="sm" variant="outline" className="min-h-[44px] w-full sm:w-auto">{t.careRecipients.addMedication}</Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
           {typedMedications && typedMedications.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {typedMedications.map(medication => (
                 <div 
                   key={medication.id} 
                   className="p-3 rounded-lg border border-border hover:bg-accent"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-foreground">{medication.name}</p>
-                        <Badge variant={medication.is_active ? 'default' : 'secondary'}>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium text-foreground text-sm sm:text-base">{medication.name}</p>
+                        <Badge variant={medication.is_active ? 'default' : 'secondary'} className="shrink-0">
                           {medication.is_active ? t.common.active : t.common.inactive}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{medication.dosage}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">{medication.dosage}</p>
                       {medication.instructions && (
-                        <p className="text-sm text-muted-foreground/70 mt-1">{medication.instructions}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1">{medication.instructions}</p>
                       )}
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right shrink-0">
                       {medication.medication_schedules && medication.medication_schedules.length > 0 ? (
-                        <div className="space-y-1">
+                        <div className="flex flex-wrap gap-2 sm:flex-col sm:gap-1">
                           {medication.medication_schedules.map(schedule => (
-                            <p key={schedule.id} className="text-sm text-blue-600 dark:text-blue-400">
+                            <p key={schedule.id} className="text-xs sm:text-sm text-blue-600 dark:text-blue-400">
                               {schedule.scheduled_time.slice(0, 5)}
                               {schedule.frequency === 'weekly' && schedule.day_of_week !== null && (
                                 <span className="text-muted-foreground ml-1">
@@ -304,7 +304,7 @@ export default async function CareRecipientDetailPage({
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground/70">{t.medications.noScheduleSet}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground/70">{t.medications.noScheduleSet}</p>
                       )}
                     </div>
                   </div>
@@ -313,9 +313,9 @@ export default async function CareRecipientDetailPage({
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-muted-foreground mb-4">{t.careRecipients.noMedicationsList}</p>
+              <p className="text-muted-foreground mb-4 text-sm sm:text-base">{t.careRecipients.noMedicationsList}</p>
               <Link href={`/dashboard/medications/new?careRecipientId=${id}`}>
-                <Button size="sm">{t.careRecipients.addMedication}</Button>
+                <Button size="sm" className="min-h-[44px]">{t.careRecipients.addMedication}</Button>
               </Link>
             </div>
           )}
@@ -324,31 +324,31 @@ export default async function CareRecipientDetailPage({
 
       {/* Appointments */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-lg">🏥 {t.careRecipients.appointmentsList}</CardTitle>
-              <CardDescription>Próximas citas médicas</CardDescription>
+              <CardTitle className="text-base sm:text-lg">🏥 {t.careRecipients.appointmentsList}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Próximas citas médicas</CardDescription>
             </div>
             <Link href={`/dashboard/appointments/new?careRecipientId=${id}`}>
-              <Button size="sm" variant="outline">{t.careRecipients.addAppointment}</Button>
+              <Button size="sm" variant="outline" className="min-h-[44px] w-full sm:w-auto">{t.careRecipients.addAppointment}</Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
           {typedAppointments && typedAppointments.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {typedAppointments.map(appointment => (
                 <div 
                   key={appointment.id} 
                   className="p-3 rounded-lg border border-border hover:bg-accent"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-foreground text-sm sm:text-base">
                         {appointmentTypeLabels[appointment.type] || appointment.type}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {new Date(appointment.appointment_date).toLocaleDateString('es-ES', {
                           weekday: 'long',
                           month: 'long',
@@ -356,10 +356,10 @@ export default async function CareRecipientDetailPage({
                         })} a las {appointment.appointment_time.slice(0, 5)}
                       </p>
                       {appointment.location && (
-                        <p className="text-sm text-muted-foreground/70 mt-1">📍 {appointment.location}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1 truncate">📍 {appointment.location}</p>
                       )}
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right shrink-0">
                       <Badge variant={
                         appointment.status === 'completed' ? 'default' :
                         appointment.status === 'cancelled' ? 'destructive' :
@@ -368,7 +368,7 @@ export default async function CareRecipientDetailPage({
                         {t.appointments.status[appointment.status as keyof typeof t.appointments.status] || appointment.status}
                       </Badge>
                       {appointment.caregivers?.profiles?.full_name && (
-                        <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                        <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 mt-1">
                           {appointment.caregivers.profiles.full_name}
                         </p>
                       )}
@@ -379,9 +379,9 @@ export default async function CareRecipientDetailPage({
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-muted-foreground mb-4">{t.careRecipients.noAppointmentsList}</p>
+              <p className="text-muted-foreground mb-4 text-sm sm:text-base">{t.careRecipients.noAppointmentsList}</p>
               <Link href={`/dashboard/appointments/new?careRecipientId=${id}`}>
-                <Button size="sm">{t.careRecipients.addAppointment}</Button>
+                <Button size="sm" className="min-h-[44px]">{t.careRecipients.addAppointment}</Button>
               </Link>
             </div>
           )}

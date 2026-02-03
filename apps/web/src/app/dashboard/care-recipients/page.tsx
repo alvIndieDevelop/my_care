@@ -29,33 +29,33 @@ export default async function CareRecipientsPage() {
     .order('name')
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t.careRecipients.title}</h1>
-          <p className="text-muted-foreground">{t.careRecipients.subtitle}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.careRecipients.title}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{t.careRecipients.subtitle}</p>
         </div>
         <Link href="/dashboard/care-recipients/new">
-          <Button>{t.careRecipients.addNew}</Button>
+          <Button className="w-full sm:w-auto min-h-[44px]">{t.careRecipients.addNew}</Button>
         </Link>
       </div>
 
       {careRecipients && careRecipients.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {careRecipients.map((recipient) => (
             <Link key={recipient.id} href={`/dashboard/care-recipients/${recipient.id}`}>
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-                <CardHeader>
-                  <CardTitle className="text-lg">{recipient.name}</CardTitle>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">{recipient.name}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
                   {recipient.date_of_birth && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {t.careRecipients.born}: {new Date(recipient.date_of_birth).toLocaleDateString('es-ES')}
                     </p>
                   )}
                   {recipient.notes && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-2 line-clamp-2">
                       {recipient.notes}
                     </p>
                   )}
@@ -66,10 +66,10 @@ export default async function CareRecipientsPage() {
         </div>
       ) : (
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground mb-4">{t.careRecipients.noRecipients}</p>
+          <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+            <p className="text-muted-foreground mb-4 text-sm sm:text-base">{t.careRecipients.noRecipients}</p>
             <Link href="/dashboard/care-recipients/new">
-              <Button>{t.careRecipients.addFirst}</Button>
+              <Button className="min-h-[44px]">{t.careRecipients.addFirst}</Button>
             </Link>
           </CardContent>
         </Card>

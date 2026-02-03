@@ -11,7 +11,7 @@ import { t } from '@/lib/translations'
 
 interface CaregiverActionsProps {
   caregiver: Tables<'caregivers'> & {
-    profiles: Tables<'profiles'> | null
+    profiles: Pick<Tables<'profiles'>, 'id' | 'full_name' | 'email'> | null
   }
 }
 
@@ -82,23 +82,25 @@ export function CaregiverActions({ caregiver }: CaregiverActionsProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Edit Phone */}
       {editing ? (
         <div className="space-y-2">
-          <Label htmlFor="phone">{t.caregivers.phone}</Label>
+          <Label htmlFor="phone" className="text-sm">{t.caregivers.phone}</Label>
           <Input
             id="phone"
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+507 6123-4567"
+            className="min-h-[44px]"
           />
           <div className="flex gap-2">
             <Button 
               size="sm" 
               onClick={handleUpdatePhone} 
               disabled={loading}
+              className="min-h-[44px] flex-1 sm:flex-none"
             >
               {t.common.save}
             </Button>
@@ -109,6 +111,7 @@ export function CaregiverActions({ caregiver }: CaregiverActionsProps) {
                 setEditing(false)
                 setPhone(caregiver.phone || '')
               }}
+              className="min-h-[44px] flex-1 sm:flex-none"
             >
               {t.common.cancel}
             </Button>
@@ -117,7 +120,7 @@ export function CaregiverActions({ caregiver }: CaregiverActionsProps) {
       ) : (
         <Button 
           variant="outline" 
-          className="w-full justify-start"
+          className="w-full justify-start min-h-[44px] text-sm"
           onClick={() => setEditing(true)}
         >
           {t.caregivers.editPhone}
@@ -127,7 +130,7 @@ export function CaregiverActions({ caregiver }: CaregiverActionsProps) {
       {/* Toggle Active Status */}
       <Button 
         variant="outline" 
-        className="w-full justify-start"
+        className="w-full justify-start min-h-[44px] text-sm"
         onClick={handleToggleActive}
         disabled={loading}
       >
@@ -137,7 +140,7 @@ export function CaregiverActions({ caregiver }: CaregiverActionsProps) {
       {/* Delete */}
       <Button 
         variant="outline" 
-        className="w-full justify-start text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
+        className="w-full justify-start min-h-[44px] text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
         onClick={handleDelete}
         disabled={loading}
       >

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { t, formatDateSpanish } from '@/lib/translations'
 import { MedicationLogForm } from './medication-log-form'
+import { MedicationDetailModal } from './medication-detail-modal'
 
 interface MedicationSchedule {
   id: string
@@ -78,65 +79,75 @@ export default async function MedicationsPage() {
     })
 
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{t.medications.title}</h1>
-            <p className="text-muted-foreground">{t.medications.subtitle}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.title}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{t.medications.subtitle}</p>
           </div>
           <Link href="/dashboard/medications/new">
-            <Button>{t.medications.addNew}</Button>
+            <Button className="w-full sm:w-auto min-h-[44px]">{t.medications.addNew}</Button>
           </Link>
         </div>
 
         {Object.keys(medicationsByRecipient).length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {Object.entries(medicationsByRecipient).map(([recipientId, { name, medications: meds }]) => (
               <Card key={recipientId}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{name}</CardTitle>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">{name}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                  <div className="space-y-3 sm:space-y-4">
                     {meds.map((medication) => (
-                      <Link 
-                        key={medication.id} 
-                        href={`/dashboard/medications/${medication.id}`}
-                        className="block p-4 rounded-lg border border-border hover:bg-accent transition-colors"
+                      <MedicationDetailModal
+                        key={medication.id}
+                        medication={{
+                          name: medication.name,
+                          dosage: medication.dosage,
+                          instructions: medication.instructions,
+                          careRecipientName: name,
+                        }}
                       >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-foreground">{medication.name}</p>
-                              <Badge variant={medication.is_active ? 'default' : 'secondary'}>
-                                {medication.is_active ? t.common.active : t.common.inactive}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{medication.dosage}</p>
-                            {medication.instructions && (
-                              <p className="text-sm text-muted-foreground/70 mt-1">{medication.instructions}</p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            {medication.medication_schedules && medication.medication_schedules.length > 0 ? (
-                              <div className="space-y-1">
-                                {medication.medication_schedules.map((schedule) => (
-                                  <p key={schedule.id} className="text-sm text-blue-600 dark:text-blue-400">
-                                    {schedule.scheduled_time.slice(0, 5)}
-                                    {schedule.frequency === 'weekly' && schedule.day_of_week !== null && (
-                                      <span className="text-muted-foreground ml-1">
-                                        ({t.days.short[schedule.day_of_week]})
-                                      </span>
-                                    )}
-                                  </p>
-                                ))}
+                        <button
+                          className="w-full text-left p-3 sm:p-4 rounded-lg border border-border hover:bg-accent transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[44px]"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-foreground text-sm sm:text-base">
+                                  {medication.name}
+                                </span>
+                                <Badge variant={medication.is_active ? 'default' : 'secondary'} className="shrink-0">
+                                  {medication.is_active ? t.common.active : t.common.inactive}
+                                </Badge>
                               </div>
-                            ) : (
-                              <p className="text-sm text-muted-foreground/70">{t.medications.noScheduleSet}</p>
-                            )}
+                              <p className="text-xs sm:text-sm text-muted-foreground">{medication.dosage}</p>
+                              {medication.instructions && (
+                                <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1 line-clamp-1">{medication.instructions}</p>
+                              )}
+                            </div>
+                            <div className="text-left sm:text-right shrink-0">
+                              {medication.medication_schedules && medication.medication_schedules.length > 0 ? (
+                                <div className="flex flex-wrap gap-2 sm:flex-col sm:gap-1">
+                                  {medication.medication_schedules.map((schedule) => (
+                                    <p key={schedule.id} className="text-xs sm:text-sm text-blue-600 dark:text-blue-400">
+                                      {schedule.scheduled_time.slice(0, 5)}
+                                      {schedule.frequency === 'weekly' && schedule.day_of_week !== null && (
+                                        <span className="text-muted-foreground ml-1">
+                                          ({t.days.short[schedule.day_of_week]})
+                                        </span>
+                                      )}
+                                    </p>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-xs sm:text-sm text-muted-foreground/70">{t.medications.noScheduleSet}</p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </Link>
+                        </button>
+                      </MedicationDetailModal>
                     ))}
                   </div>
                 </CardContent>
@@ -145,13 +156,13 @@ export default async function MedicationsPage() {
           </div>
         ) : (
           <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground mb-4">{t.medications.noMedications}</p>
-              <p className="text-sm text-muted-foreground/70 mb-6">
+            <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+              <p className="text-muted-foreground mb-4 text-sm sm:text-base">{t.medications.noMedications}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground/70 mb-6">
                 {t.medications.noMedicationsHelp}
               </p>
               <Link href="/dashboard/medications/new">
-                <Button>{t.medications.addFirst}</Button>
+                <Button className="min-h-[44px]">{t.medications.addFirst}</Button>
               </Link>
             </CardContent>
           </Card>
@@ -170,11 +181,11 @@ export default async function MedicationsPage() {
 
   if (!caregiver) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
+      <div className="space-y-4 sm:space-y-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">{t.errors.notRegisteredAsCaregiver}</p>
+          <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+            <p className="text-muted-foreground text-sm sm:text-base">{t.errors.notRegisteredAsCaregiver}</p>
           </CardContent>
         </Card>
       </div>
@@ -197,14 +208,14 @@ export default async function MedicationsPage() {
 
   if (careRecipientIds.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
-          <p className="text-muted-foreground">{formatDateSpanish(today)}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{formatDateSpanish(today)}</p>
         </div>
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">{t.medications.noMedicationsToday}</p>
+          <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+            <p className="text-muted-foreground text-sm sm:text-base">{t.medications.noMedicationsToday}</p>
           </CardContent>
         </Card>
       </div>
@@ -268,21 +279,21 @@ export default async function MedicationsPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
-        <p className="text-muted-foreground">{formatDateSpanish(today)}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">{formatDateSpanish(today)}</p>
       </div>
 
       {Object.keys(medicationsByRecipient).length > 0 ? (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {Object.entries(medicationsByRecipient).map(([recipientId, { name, medications: meds }]) => (
             <Card key={recipientId}>
-              <CardHeader>
-                <CardTitle className="text-lg">{name}</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">{name}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                <div className="space-y-3 sm:space-y-4">
                   {meds.map((medication) => {
                     // Get today's schedules for this medication
                     const todaySchedules = medication.medication_schedules.filter(s => 
@@ -290,30 +301,41 @@ export default async function MedicationsPage() {
                     )
 
                     return (
-                      <div key={medication.id} className="border border-border rounded-lg p-4">
+                      <div key={medication.id} className="border border-border rounded-lg p-3 sm:p-4">
                         <div className="mb-3">
-                          <p className="font-medium text-lg text-foreground">{medication.name}</p>
-                          <p className="text-sm text-muted-foreground">{medication.dosage}</p>
+                          <MedicationDetailModal
+                            medication={{
+                              name: medication.name,
+                              dosage: medication.dosage,
+                              instructions: medication.instructions,
+                              careRecipientName: name,
+                            }}
+                          >
+                            <button className="text-left hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded min-h-[44px]">
+                              <p className="font-medium text-base sm:text-lg text-foreground">{medication.name}</p>
+                              <p className="text-xs sm:text-sm text-muted-foreground">{medication.dosage}</p>
+                            </button>
+                          </MedicationDetailModal>
                           {medication.instructions && (
-                            <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">📋 {medication.instructions}</p>
+                            <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 mt-1 line-clamp-1">📋 {medication.instructions}</p>
                           )}
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-2 sm:space-y-3">
                           {todaySchedules.map((schedule) => {
                             const log = logMap.get(schedule.id)
                             return (
                               <div 
                                 key={schedule.id} 
-                                className={`p-3 rounded-lg ${
+                                className={`p-2 sm:p-3 rounded-lg ${
                                   log?.status === 'given' ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' :
                                   log?.status === 'skipped' ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800' :
                                   log?.status === 'refused' ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800' :
                                   'bg-muted border border-border'
                                 }`}
                               >
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-sm font-medium text-foreground">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2">
+                                  <span className="text-xs sm:text-sm font-medium text-foreground">
                                     {t.medications.scheduledFor}: {schedule.scheduled_time.slice(0, 5)}
                                   </span>
                                   {log && (
@@ -321,7 +343,7 @@ export default async function MedicationsPage() {
                                       log.status === 'given' ? 'default' :
                                       log.status === 'skipped' ? 'secondary' :
                                       'destructive'
-                                    }>
+                                    } className="w-fit">
                                       {log.status === 'given' ? t.medications.given :
                                        log.status === 'skipped' ? t.medications.skipped :
                                        t.medications.refused}
@@ -349,8 +371,8 @@ export default async function MedicationsPage() {
         </div>
       ) : (
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">{t.medications.noMedicationsToday}</p>
+          <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+            <p className="text-muted-foreground text-sm sm:text-base">{t.medications.noMedicationsToday}</p>
           </CardContent>
         </Card>
       )}

@@ -117,14 +117,14 @@ export function ScheduleForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="careRecipient">{t.schedules.careRecipient} *</Label>
+        <Label htmlFor="careRecipient" className="text-sm">{t.schedules.careRecipient} *</Label>
         <Select value={careRecipientId} onValueChange={setCareRecipientId}>
-          <SelectTrigger>
+          <SelectTrigger className="min-h-[44px]">
             <SelectValue placeholder={t.schedules.selectCareRecipient} />
           </SelectTrigger>
           <SelectContent>
             {careRecipients.map((recipient) => (
-              <SelectItem key={recipient.id} value={recipient.id}>
+              <SelectItem key={recipient.id} value={recipient.id} className="min-h-[44px]">
                 {recipient.name}
               </SelectItem>
             ))}
@@ -138,14 +138,14 @@ export function ScheduleForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="caregiver">{t.schedules.caregiver} *</Label>
+        <Label htmlFor="caregiver" className="text-sm">{t.schedules.caregiver} *</Label>
         <Select value={caregiverId} onValueChange={setCaregiverId}>
-          <SelectTrigger>
+          <SelectTrigger className="min-h-[44px]">
             <SelectValue placeholder={t.schedules.selectCaregiver} />
           </SelectTrigger>
           <SelectContent>
             {caregivers.map((caregiver) => (
-              <SelectItem key={caregiver.id} value={caregiver.id}>
+              <SelectItem key={caregiver.id} value={caregiver.id} className="min-h-[44px]">
                 {caregiver.profiles?.full_name || 'Desconocido'}
               </SelectItem>
             ))}
@@ -159,7 +159,7 @@ export function ScheduleForm({
       </div>
 
       <div className="space-y-3">
-        <Label>{t.schedules.daysOfWeek} *</Label>
+        <Label className="text-sm">{t.schedules.daysOfWeek} *</Label>
         
         {/* Quick selection buttons */}
         <div className="flex flex-wrap gap-2">
@@ -168,7 +168,7 @@ export function ScheduleForm({
             variant="outline" 
             size="sm"
             onClick={selectWeekdays}
-            className="text-xs"
+            className="text-xs min-h-[36px]"
           >
             Lun-Vie
           </Button>
@@ -177,7 +177,7 @@ export function ScheduleForm({
             variant="outline" 
             size="sm"
             onClick={selectWeekends}
-            className="text-xs"
+            className="text-xs min-h-[36px]"
           >
             Fin de semana
           </Button>
@@ -186,7 +186,7 @@ export function ScheduleForm({
             variant="outline" 
             size="sm"
             onClick={selectAllDays}
-            className="text-xs"
+            className="text-xs min-h-[36px]"
           >
             Todos
           </Button>
@@ -195,7 +195,7 @@ export function ScheduleForm({
             variant="outline" 
             size="sm"
             onClick={clearDays}
-            className="text-xs"
+            className="text-xs min-h-[36px]"
           >
             Limpiar
           </Button>
@@ -206,16 +206,17 @@ export function ScheduleForm({
           {t.days.long.map((day, index) => (
             <div 
               key={index} 
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 min-h-[44px]"
             >
               <Checkbox
                 id={`day-${index}`}
                 checked={selectedDays.includes(index)}
                 onCheckedChange={() => toggleDay(index)}
+                className="h-5 w-5"
               />
               <label
                 htmlFor={`day-${index}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-foreground"
+                className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-foreground"
               >
                 {day}
               </label>
@@ -230,45 +231,47 @@ export function ScheduleForm({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startTime">{t.schedules.startTime} *</Label>
+          <Label htmlFor="startTime" className="text-sm">{t.schedules.startTime} *</Label>
           <Input
             id="startTime"
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
             required
+            className="min-h-[44px]"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="endTime">{t.schedules.endTime} *</Label>
+          <Label htmlFor="endTime" className="text-sm">{t.schedules.endTime} *</Label>
           <Input
             id="endTime"
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
             required
+            className="min-h-[44px]"
           />
         </div>
       </div>
 
       {error && (
-        <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm">
+        <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs sm:text-sm">
           {error}
         </div>
       )}
 
-      <div className="flex gap-3 pt-4">
+      <div className="flex flex-col sm:flex-row gap-3 pt-4">
         <Button 
           type="submit" 
           disabled={loading || careRecipients.length === 0 || caregivers.length === 0 || selectedDays.length === 0} 
-          className="flex-1"
+          className="flex-1 min-h-[44px]"
         >
           {loading ? t.schedules.creating : t.schedules.addNew}
         </Button>
-        <Link href="/dashboard/schedules">
-          <Button type="button" variant="outline">
+        <Link href="/dashboard/schedules" className="sm:w-auto">
+          <Button type="button" variant="outline" className="w-full min-h-[44px]">
             {t.common.cancel}
           </Button>
         </Link>

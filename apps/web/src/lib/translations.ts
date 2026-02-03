@@ -80,6 +80,7 @@ export const t = {
     step3: 'Crear Horarios - Asigna cuidadores a turnos',
     step4: 'Agregar Tareas - Define qué hacer en cada turno',
     step5: 'Configurar Medicamentos - Registra los horarios de medicación',
+    manageCareRecipients: 'Personas bajo cuidado',
     manageCaregivers: 'Gestionar equipo',
     manageSchedules: 'Gestionar turnos',
     activeMedications: 'Medicamentos activos',
