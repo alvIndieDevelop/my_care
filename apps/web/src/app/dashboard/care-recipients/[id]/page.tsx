@@ -13,6 +13,8 @@ interface Schedule {
   end_time: string
   caregivers: {
     id: string
+    full_name: string | null
+    profile_id: string | null
     profiles: {
       full_name: string
     } | null
@@ -44,6 +46,8 @@ interface Appointment {
   status: string
   caregivers: {
     id: string
+    full_name: string | null
+    profile_id: string | null
     profiles: {
       full_name: string
     } | null
@@ -100,11 +104,20 @@ export default async function CareRecipientDetailPage({
       end_time,
       caregivers (
         id,
+        full_name,
+        profile_id,
         profiles (full_name)
       )
     `)
     .eq('care_recipient_id', id)
     .order('day_of_week')
+
+  // Helper function to get caregiver name
+  const getCaregiverName = (caregiver: Schedule['caregivers']) => {
+    if (!caregiver) return t.schedules.unassigned
+    if (caregiver.profiles?.full_name) return caregiver.profiles.full_name
+    return caregiver.full_name || t.schedules.unassigned
+  }
 
   // Get medications for this care recipient
   const { data: medications } = await supabase
@@ -137,6 +150,8 @@ export default async function CareRecipientDetailPage({
       status,
       caregivers (
         id,
+        full_name,
+        profile_id,
         profiles (full_name)
       )
     `)
@@ -144,6 +159,13 @@ export default async function CareRecipientDetailPage({
     .gte('appointment_date', new Date().toISOString().split('T')[0])
     .order('appointment_date')
     .order('appointment_time')
+
+  // Helper function to get appointment caregiver name
+  const getAppointmentCaregiverName = (caregiver: Appointment['caregivers']) => {
+    if (!caregiver) return null
+    if (caregiver.profiles?.full_name) return caregiver.profiles.full_name
+    return caregiver.full_name
+  }
 
   const typedSchedules = schedules as Schedule[] | null
   const typedMedications = medications as Medication[] | null
@@ -235,7 +257,7 @@ export default async function CareRecipientDetailPage({
                             {schedule.start_time?.slice(0, 5)} - {schedule.end_time?.slice(0, 5)}
                           </span>
                           <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                            {schedule.caregivers?.profiles?.full_name || t.schedules.unassigned}
+                            {getCaregiverName(schedule.caregivers)}
                           </span>
                         </Link>
                       ))}
@@ -367,9 +389,9 @@ export default async function CareRecipientDetailPage({
                       }>
                         {t.appointments.status[appointment.status as keyof typeof t.appointments.status] || appointment.status}
                       </Badge>
-                      {appointment.caregivers?.profiles?.full_name && (
+                      {getAppointmentCaregiverName(appointment.caregivers) && (
                         <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                          {appointment.caregivers.profiles.full_name}
+                          {getAppointmentCaregiverName(appointment.caregivers)}
                         </p>
                       )}
                     </div>

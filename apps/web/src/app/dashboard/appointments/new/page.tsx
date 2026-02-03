@@ -25,6 +25,8 @@ interface CareRecipient {
 
 interface Caregiver {
   id: string
+  full_name: string | null
+  profile_id: string | null
   profiles: {
     full_name: string
   } | null
@@ -52,7 +54,7 @@ export default function NewAppointmentPage() {
     async function loadData() {
       const [recipientsRes, caregiversRes] = await Promise.all([
         supabase.from('care_recipients').select('id, name').order('name'),
-        supabase.from('caregivers').select('id, profiles(full_name)').eq('is_active', true),
+        supabase.from('caregivers').select('id, full_name, profile_id, profiles(full_name)').eq('is_active', true),
       ])
       
       if (recipientsRes.data) setCareRecipients(recipientsRes.data)
@@ -201,11 +203,15 @@ export default function NewAppointmentPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">{t.common.none}</SelectItem>
-                  {caregivers.map((caregiver) => (
-                    <SelectItem key={caregiver.id} value={caregiver.id}>
-                      {caregiver.profiles?.full_name || 'Desconocido'}
-                    </SelectItem>
-                  ))}
+                  {caregivers.map((caregiver) => {
+                    const name = caregiver.profiles?.full_name || caregiver.full_name || 'Desconocido'
+                    const isGuest = !caregiver.profile_id
+                    return (
+                      <SelectItem key={caregiver.id} value={caregiver.id}>
+                        {name}{isGuest ? ' (Invitado)' : ''}
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">

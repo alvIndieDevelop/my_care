@@ -133,10 +133,11 @@ export const t = {
     noCaregiversHelp: 'Agrega cuidadores a tu equipo para que ayuden con la coordinación del cuidado',
     phone: 'Teléfono',
     createTitle: 'Agregar Cuidador',
-    createSubtitle: 'Agrega un miembro del equipo para ayudar con la coordinación del cuidado. Deben tener una cuenta primero.',
+    createSubtitle: 'Agrega un miembro del equipo para ayudar con la coordinación del cuidado.',
     emailUsed: 'El correo que usaron para registrarse',
     optionalName: 'Opcional - se usará el nombre de su perfil si no se proporciona',
     optionalPhone: 'Opcional - para contacto',
+    optionalEmail: 'Opcional - solo para contacto, no podrá iniciar sesión',
     adding: 'Agregando...',
     alreadyCaregiver: 'Esta persona ya es cuidador',
     noAccountFound: 'No se encontró cuenta para {email}. Pídeles que se registren primero en {url}, luego agrégalos como cuidador.',
@@ -156,6 +157,15 @@ export const t = {
     addSchedule: '+ Agregar Horario',
     noSchedules: 'No hay horarios asignados aún',
     assignSchedule: 'Asignar un horario',
+    // Guest caregiver specific
+    guestBadge: 'Invitado',
+    hasAccountBadge: 'Tiene Cuenta',
+    guestCaregiverNote: 'Este cuidador no tiene cuenta. El administrador gestiona todo por él.',
+    fullNameRequired: 'Nombre completo del cuidador',
+    fullNamePlaceholder: 'ej., María García',
+    createGuestTitle: 'Agregar Cuidador',
+    createGuestSubtitle: 'Crea un cuidador directamente. No necesita registrarse.',
+    guestInfo: 'Este cuidador no podrá iniciar sesión en la app. El administrador gestionará sus horarios y tareas.',
   },
 
   // Schedules
