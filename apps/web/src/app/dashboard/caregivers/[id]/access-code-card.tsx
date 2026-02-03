@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { t } from '@/lib/translations'
+import { generateAccessCode } from './actions'
 
 interface AccessCodeCardProps {
   caregiverId: string
@@ -14,51 +14,9 @@ interface AccessCodeCardProps {
 
 export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [currentCode, setCurrentCode] = useState(accessCode)
-
-  const generateNewCode = () => {
-    // Generate a random 6-digit code
-    return Math.floor(100000 + Math.random() * 900000).toString()
-  }
-
-  const updateAccessCode = async (newCode: string) => {
-    // Try RPC function first (bypasses schema cache issues)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: rpcError } = await (supabase.rpc as any)('update_caregiver_access_code', {
-      p_caregiver_id: caregiverId,
-      p_access_code: newCode
-    })
-    
-    if (rpcError) {
-      console.log('RPC error details:', JSON.stringify(rpcError))
-      
-      // If RPC doesn't exist (function not found) or empty error, try direct update
-      const isRpcNotFound = rpcError.code === '42883' ||
-                           rpcError.code === 'PGRST202' ||
-                           rpcError.message?.includes('function') ||
-                           rpcError.message?.includes('does not exist') ||
-                           Object.keys(rpcError).length === 0 // Empty error object
-      
-      if (isRpcNotFound) {
-        console.log('RPC not found, trying direct update...')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error: updateError } = await (supabase.from('caregivers') as any)
-          .update({ access_code: newCode })
-          .eq('id', caregiverId)
-        
-        if (updateError) {
-          console.log('Direct update error:', JSON.stringify(updateError))
-        }
-        return { error: updateError }
-      }
-      return { error: rpcError }
-    }
-    
-    return { error: null }
-  }
 
   const handleRegenerateCode = async () => {
     if (!confirm(t.guestAccess.regenerateConfirm)) {
@@ -67,15 +25,13 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
 
     setLoading(true)
     try {
-      const newCode = generateNewCode()
-      const { error } = await updateAccessCode(newCode)
-
-      if (error) {
-        console.error('Supabase error:', error)
-        throw new Error(error.message || 'Error al actualizar')
+      const result = await generateAccessCode(caregiverId)
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Error al actualizar')
       }
 
-      setCurrentCode(newCode)
+      setCurrentCode(result.code || null)
       router.refresh()
     } catch (err) {
       console.error('Error regenerating code:', err)
@@ -89,15 +45,13 @@ export function AccessCodeCard({ caregiverId, accessCode }: AccessCodeCardProps)
   const handleGenerateCode = async () => {
     setLoading(true)
     try {
-      const newCode = generateNewCode()
-      const { error } = await updateAccessCode(newCode)
-
-      if (error) {
-        console.error('Supabase error:', error)
-        throw new Error(error.message || 'Error al actualizar')
+      const result = await generateAccessCode(caregiverId)
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Error al actualizar')
       }
 
-      setCurrentCode(newCode)
+      setCurrentCode(result.code || null)
       router.refresh()
     } catch (err) {
       console.error('Error generating code:', err)

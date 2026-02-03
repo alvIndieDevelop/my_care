@@ -78,6 +78,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Grant execute permission to authenticated users
 GRANT EXECUTE ON FUNCTION update_caregiver_access_code(UUID, VARCHAR) TO authenticated;
 
--- IMPORTANT: After running this migration, reload the PostgREST schema cache:
+-- Notify PostgREST to reload schema (this triggers automatic cache refresh)
+NOTIFY pgrst, 'reload schema';
+
+-- IMPORTANT: If the above NOTIFY doesn't work, manually reload the schema cache:
 -- Go to Supabase Dashboard > Settings > API > Click "Reload schema cache"
 -- Or restart the project from Settings > General > Restart project
