@@ -89,13 +89,15 @@ export default function LoginPage() {
             <p className="text-center text-sm text-muted-foreground mb-3">
               ¿Eres cuidador invitado?
             </p>
-            <Button
-              variant="outline"
-              className="w-full min-h-[44px]"
-              onClick={() => router.push('/guest')}
-            >
-              🔑 Ingresar con código de acceso
-            </Button>
+            <Link href="/guest" className="block">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full min-h-[44px]"
+              >
+                🔑 Ingresar con código de acceso
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
