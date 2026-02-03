@@ -25,35 +25,48 @@ export async function generateAccessCode(caregiverId: string): Promise<{ success
   // Generate a random 6-digit code
   const newCode = Math.floor(100000 + Math.random() * 900000).toString()
   
-  // Try to update using raw SQL via RPC if available
   try {
-    // First try the RPC function
-    const { error: rpcError } = await supabase.rpc('update_caregiver_access_code' as never, {
-      p_caregiver_id: caregiverId,
-      p_access_code: newCode
-    } as never)
-    
-    if (!rpcError) {
-      revalidatePath(`/dashboard/caregivers/${caregiverId}`)
-      return { success: true, code: newCode }
+    // Get the session for auth header
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      return { success: false, error: 'No hay sesión activa' }
     }
     
-    console.log('RPC failed, trying direct update:', rpcError)
+    // Use direct REST API call to bypass PostgREST schema cache
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/caregivers?id=eq.${caregiverId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'Authorization': `Bearer ${session.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ access_code: newCode })
+      }
+    )
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('REST API error:', response.status, errorText)
+      
+      // If schema cache error, provide helpful message
+      if (errorText.includes('schema cache')) {
+        return { 
+          success: false, 
+          error: 'La columna access_code no está en el cache. Por favor, recarga el schema cache en Supabase Dashboard > Settings > API > Reload schema cache' 
+        }
+      }
+      
+      return { success: false, error: `Error ${response.status}: ${errorText}` }
+    }
+    
+    revalidatePath(`/dashboard/caregivers/${caregiverId}`)
+    return { success: true, code: newCode }
   } catch (e) {
-    console.log('RPC not available:', e)
+    console.error('Error in generateAccessCode:', e)
+    return { success: false, error: e instanceof Error ? e.message : 'Error desconocido' }
   }
-  
-  // Fallback: Try direct update
-  const { error: updateError } = await supabase
-    .from('caregivers')
-    .update({ access_code: newCode } as never)
-    .eq('id', caregiverId)
-  
-  if (updateError) {
-    console.error('Update error:', updateError)
-    return { success: false, error: updateError.message || 'Error al actualizar' }
-  }
-  
-  revalidatePath(`/dashboard/caregivers/${caregiverId}`)
-  return { success: true, code: newCode }
 }
