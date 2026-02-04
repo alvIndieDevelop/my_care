@@ -216,20 +216,29 @@ export function DashboardNav({ profile }: DashboardNavProps) {
         </div>
 
         {/* Navigation Links - Mobile */}
-        <div className="md:hidden pb-3 flex overflow-x-auto space-x-1 scrollbar-hide">
-          {(isAdmin ? adminLinksMobile : caregiverLinks).map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-                pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+        <div className="md:hidden relative pb-3">
+          {/* Left scroll indicator */}
+          <div className="absolute left-0 top-0 bottom-3 w-6 bg-gradient-to-r from-background to-transparent pointer-events-none z-10" />
+          
+          {/* Scrollable navigation */}
+          <div className="flex overflow-x-auto space-x-1 scrollbar-hide px-4">
+            {(isAdmin ? adminLinksMobile : caregiverLinks).map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                  pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          
+          {/* Right scroll indicator */}
+          <div className="absolute right-0 top-0 bottom-3 w-6 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
         </div>
       </div>
     </nav>
