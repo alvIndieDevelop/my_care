@@ -6,6 +6,8 @@ const withPWA = withPWAInit({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
+  // Use custom service worker for push notifications
+  sw: "sw.js",
   fallbacks: {
     document: "/offline",
   },

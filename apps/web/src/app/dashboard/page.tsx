@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { t } from '@/lib/translations'
+import { PushNotificationSettings } from '@/components/push-notification-settings'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -48,6 +49,8 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold text-foreground">{t.dashboard.title}</h1>
           <p className="text-muted-foreground">{t.dashboard.welcomeAdmin}, {profile?.full_name}</p>
         </div>
+
+        <PushNotificationSettings />
 
         <div className="grid grid-cols-2 gap-4">
           <Link href="/dashboard/caregivers">
@@ -160,6 +163,8 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-foreground">{t.dashboard.title}</h1>
         <p className="text-muted-foreground">{t.dashboard.welcomeCaregiver}, {profile?.full_name}</p>
       </div>
+
+      <PushNotificationSettings />
 
       <Card>
         <CardHeader>
