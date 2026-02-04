@@ -56,14 +56,14 @@ export default async function SchedulesPage() {
   }, {} as Record<number, ScheduleWithRelations[]>)
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t.schedules.title}</h1>
-          <p className="text-muted-foreground">{t.schedules.subtitle}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.schedules.title}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{t.schedules.subtitle}</p>
         </div>
         <Link href="/dashboard/schedules/new">
-          <Button>{t.schedules.addNew}</Button>
+          <Button className="w-full sm:w-auto min-h-[44px]">{t.schedules.addNew}</Button>
         </Link>
       </div>
 

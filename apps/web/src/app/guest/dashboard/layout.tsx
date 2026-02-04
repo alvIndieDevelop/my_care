@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { t } from '@/lib/translations'
 import Link from 'next/link'
@@ -19,6 +19,7 @@ export default function GuestDashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [guestSession, setGuestSession] = useState<GuestSession | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -104,28 +105,44 @@ export default function GuestDashboardLayout({
         <div className="flex items-center justify-around h-16">
           <Link
             href="/guest/dashboard"
-            className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              pathname === '/guest/dashboard'
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
           >
             <span className="text-xl">📋</span>
             <span className="text-xs mt-1">{t.nav.today}</span>
           </Link>
           <Link
             href="/guest/dashboard/tasks"
-            className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              pathname === '/guest/dashboard/tasks'
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
           >
             <span className="text-xl">✓</span>
             <span className="text-xs mt-1">{t.nav.tasks}</span>
           </Link>
           <Link
             href="/guest/dashboard/medications"
-            className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              pathname === '/guest/dashboard/medications'
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
           >
             <span className="text-xl">💊</span>
             <span className="text-xs mt-1">{t.nav.medications}</span>
           </Link>
           <Link
             href="/guest/dashboard/appointments"
-            className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground hover:text-foreground transition-colors"
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              pathname === '/guest/dashboard/appointments'
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
           >
             <span className="text-xl">📅</span>
             <span className="text-xs mt-1">{t.nav.appointments}</span>

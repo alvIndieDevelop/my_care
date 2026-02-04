@@ -80,12 +80,47 @@ function NavDropdown({ label, items, pathname }: NavDropdownProps) {
   )
 }
 
+// Hamburger menu icon component
+function HamburgerIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <svg
+      className="w-6 h-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      {isOpen ? (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+      )}
+    </svg>
+  )
+}
+
 export function DashboardNav({ profile }: DashboardNavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const isAdmin = profile.role === 'admin'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [mobileMenuOpen])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -114,7 +149,7 @@ export function DashboardNav({ profile }: DashboardNavProps) {
     analytics: { href: '/dashboard/analytics', label: '📊 ' + t.nav.analytics },
   }
 
-  // Flat list for mobile
+  // Flat list for mobile menu
   const adminLinksMobile = [
     { href: '/dashboard', label: '🏠 ' + t.nav.dashboard },
     { href: '/dashboard/care-recipients', label: '👤 ' + t.nav.careRecipients },
@@ -135,103 +170,174 @@ export function DashboardNav({ profile }: DashboardNavProps) {
   const roleLabel = profile.role === 'admin' ? 'Administrador' : 'Cuidador'
 
   return (
-    <nav className="bg-background border-b border-border sticky top-0 z-50">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/dashboard" className="font-bold text-xl text-blue-600 dark:text-blue-400">
-            MyCare
-          </Link>
+    <>
+      <nav className="bg-background border-b border-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="flex items-center justify-between h-16">
+            {/* Mobile menu button - Admin only */}
+            {isAdmin && (
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Toggle menu"
+              >
+                <HamburgerIcon isOpen={mobileMenuOpen} />
+              </button>
+            )}
 
-          {/* Navigation Links - Desktop */}
-          <div className="hidden md:flex items-center space-x-1">
-            {isAdmin ? (
-              <>
-                {/* Dashboard link */}
-                <Link
-                  href={adminNavGroups.main.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === adminNavGroups.main.href
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                  }`}
-                >
-                  {adminNavGroups.main.label}
-                </Link>
+            {/* Logo */}
+            <Link href="/dashboard" className="font-bold text-xl text-blue-600 dark:text-blue-400">
+              MyCare
+            </Link>
 
-                {/* Gestión dropdown */}
-                <NavDropdown
-                  label={adminNavGroups.gestion.label}
-                  items={adminNavGroups.gestion.items}
-                  pathname={pathname}
-                />
+            {/* Navigation Links - Desktop */}
+            <div className="hidden md:flex items-center space-x-1">
+              {isAdmin ? (
+                <>
+                  {/* Dashboard link */}
+                  <Link
+                    href={adminNavGroups.main.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      pathname === adminNavGroups.main.href
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                  >
+                    {adminNavGroups.main.label}
+                  </Link>
 
-                {/* Salud dropdown */}
-                <NavDropdown
-                  label={adminNavGroups.salud.label}
-                  items={adminNavGroups.salud.items}
-                  pathname={pathname}
-                />
+                  {/* Gestión dropdown */}
+                  <NavDropdown
+                    label={adminNavGroups.gestion.label}
+                    items={adminNavGroups.gestion.items}
+                    pathname={pathname}
+                  />
 
-                {/* Analytics link */}
-                <Link
-                  href={adminNavGroups.analytics.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === adminNavGroups.analytics.href
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                  }`}
-                >
-                  {adminNavGroups.analytics.label}
-                </Link>
-              </>
-            ) : (
-              caregiverLinks.map((link) => (
+                  {/* Salud dropdown */}
+                  <NavDropdown
+                    label={adminNavGroups.salud.label}
+                    items={adminNavGroups.salud.items}
+                    pathname={pathname}
+                  />
+
+                  {/* Analytics link */}
+                  <Link
+                    href={adminNavGroups.analytics.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      pathname === adminNavGroups.analytics.href
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                  >
+                    {adminNavGroups.analytics.label}
+                  </Link>
+                </>
+              ) : (
+                caregiverLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      pathname === link.href
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))
+              )}
+            </div>
+
+            {/* User Menu */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <ThemeToggle />
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-medium text-foreground">{profile.full_name}</p>
+                <p className="text-xs text-muted-foreground">{roleLabel}</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                {t.auth.signOut}
+              </Button>
+            </div>
+          </div>
+
+          {/* Caregiver Mobile Navigation - Bottom bar style (only for caregivers) */}
+          {!isAdmin && (
+            <div className="md:hidden pb-3 flex overflow-x-auto space-x-1 scrollbar-hide">
+              {caregiverLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === link.href
+                  className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                    pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
                       ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   }`}
                 >
                   {link.label}
                 </Link>
-              ))
-            )}
-          </div>
-
-          {/* User Menu */}
-          <div className="flex items-center space-x-3">
-            <ThemeToggle />
-            <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-foreground">{profile.full_name}</p>
-              <p className="text-xs text-muted-foreground">{roleLabel}</p>
+              ))}
             </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              {t.auth.signOut}
-            </Button>
-          </div>
+          )}
         </div>
+      </nav>
 
-        {/* Navigation Links - Mobile */}
-        <div className="md:hidden pb-3 flex overflow-x-auto space-x-1 scrollbar-hide">
-          {(isAdmin ? adminLinksMobile : caregiverLinks).map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-                pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-    </nav>
+      {/* Mobile Slide-out Menu - Admin only */}
+      {isAdmin && (
+        <>
+          {/* Backdrop */}
+          <div
+            className={`fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300 ${
+              mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Slide-out drawer */}
+          <div
+            className={`fixed top-0 left-0 h-full w-72 bg-background border-r border-border z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
+              mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+          >
+            {/* Drawer header */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <span className="font-bold text-xl text-blue-600 dark:text-blue-400">MyCare</span>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Close menu"
+              >
+                <HamburgerIcon isOpen={true} />
+              </button>
+            </div>
+
+            {/* User info */}
+            <div className="p-4 border-b border-border">
+              <p className="font-medium text-foreground">{profile.full_name}</p>
+              <p className="text-sm text-muted-foreground">{roleLabel}</p>
+            </div>
+
+            {/* Navigation links */}
+            <div className="py-2">
+              {adminLinksMobile.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center px-4 py-3 text-base transition-colors ${
+                    pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border-r-4 border-blue-600'
+                      : 'text-foreground hover:bg-accent'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }

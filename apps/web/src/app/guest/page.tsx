@@ -110,6 +110,12 @@ export default function GuestLoginPage() {
             </Button>
           </form>
 
+          {/* Helper text for users without access code */}
+          <div className="mt-4 p-3 rounded-md bg-muted text-sm text-muted-foreground">
+            <p className="font-medium mb-1">¿No tienes código de acceso?</p>
+            <p>Contacta al administrador para obtener tu código de acceso de 6 dígitos.</p>
+          </div>
+
           <div className="mt-6 pt-6 border-t border-border text-center">
             <p className="text-sm text-muted-foreground mb-2">
               {t.guestAccess.haveAccount}

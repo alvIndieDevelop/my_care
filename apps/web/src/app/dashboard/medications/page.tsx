@@ -78,14 +78,14 @@ export default async function MedicationsPage() {
     })
 
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{t.medications.title}</h1>
-            <p className="text-muted-foreground">{t.medications.subtitle}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.title}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{t.medications.subtitle}</p>
           </div>
           <Link href="/dashboard/medications/new">
-            <Button>{t.medications.addNew}</Button>
+            <Button className="w-full sm:w-auto min-h-[44px]">{t.medications.addNew}</Button>
           </Link>
         </div>
 
@@ -145,13 +145,13 @@ export default async function MedicationsPage() {
           </div>
         ) : (
           <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground mb-4">{t.medications.noMedications}</p>
-              <p className="text-sm text-muted-foreground/70 mb-6">
+            <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+              <p className="text-sm sm:text-base text-muted-foreground mb-4">{t.medications.noMedications}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground/70 mb-6">
                 {t.medications.noMedicationsHelp}
               </p>
               <Link href="/dashboard/medications/new">
-                <Button>{t.medications.addFirst}</Button>
+                <Button className="min-h-[44px]">{t.medications.addFirst}</Button>
               </Link>
             </CardContent>
           </Card>
@@ -170,11 +170,11 @@ export default async function MedicationsPage() {
 
   if (!caregiver) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
+      <div className="space-y-4 sm:space-y-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">{t.errors.notRegisteredAsCaregiver}</p>
+          <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+            <p className="text-sm sm:text-base text-muted-foreground">{t.errors.notRegisteredAsCaregiver}</p>
           </CardContent>
         </Card>
       </div>
@@ -197,14 +197,14 @@ export default async function MedicationsPage() {
 
   if (careRecipientIds.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
-          <p className="text-muted-foreground">{formatDateSpanish(today)}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{formatDateSpanish(today)}</p>
         </div>
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">{t.medications.noMedicationsToday}</p>
+          <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+            <p className="text-sm sm:text-base text-muted-foreground">{t.medications.noMedicationsToday}</p>
           </CardContent>
         </Card>
       </div>
@@ -268,18 +268,18 @@ export default async function MedicationsPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
-        <p className="text-muted-foreground">{formatDateSpanish(today)}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.medications.caregiverTitle}</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">{formatDateSpanish(today)}</p>
       </div>
 
       {Object.keys(medicationsByRecipient).length > 0 ? (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {Object.entries(medicationsByRecipient).map(([recipientId, { name, medications: meds }]) => (
             <Card key={recipientId}>
-              <CardHeader>
-                <CardTitle className="text-lg">{name}</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">{name}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
