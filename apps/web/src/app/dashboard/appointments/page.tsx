@@ -97,17 +97,17 @@ export default async function AppointmentsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t.appointments.title}</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t.appointments.title}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             {isAdmin ? t.appointments.subtitle : 'Citas de las personas a tu cuidado'}
           </p>
         </div>
         {isAdmin && (
           <Link href="/dashboard/appointments/new">
-            <Button>{t.appointments.addNew}</Button>
+            <Button className="w-full sm:w-auto min-h-[44px]">{t.appointments.addNew}</Button>
           </Link>
         )}
       </div>
@@ -116,13 +116,13 @@ export default async function AppointmentsPage() {
         <AppointmentList appointments={appointments} isAdmin={isAdmin} />
       ) : (
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground mb-4">
+          <CardContent className="py-8 sm:py-12 text-center p-4 sm:p-6">
+            <p className="text-sm sm:text-base text-muted-foreground mb-4">
               {isAdmin ? t.appointments.noAppointments : 'No hay citas programadas para las personas a tu cuidado'}
             </p>
             {isAdmin && (
               <Link href="/dashboard/appointments/new">
-                <Button>{t.appointments.addFirst}</Button>
+                <Button className="min-h-[44px]">{t.appointments.addFirst}</Button>
               </Link>
             )}
           </CardContent>
