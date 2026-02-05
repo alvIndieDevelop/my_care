@@ -5,8 +5,9 @@ const withPWA = withPWAInit({
   dest: "public",
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
-  // Use custom service worker for push notifications
+  // Enable PWA in development for testing push notifications
+  disable: false,
+  scope: "/",
   sw: "sw.js",
   fallbacks: {
     document: "/offline",
@@ -51,9 +52,8 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  // Add empty turbopack config to silence the webpack/turbopack conflict warning
-  // next-pwa uses webpack internally, so we need to acknowledge this
-  turbopack: {},
+  // next-pwa requires webpack, not turbopack
+  // Use --webpack flag in package.json scripts
 };
 
 export default withPWA(nextConfig);

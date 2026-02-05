@@ -42,9 +42,13 @@ export function PushNotificationSettings() {
     setIsLoading(true)
     
     try {
+      console.log('🔔 Starting notification enablement...')
+      
       // Request permission
+      console.log('📝 Requesting notification permission...')
       const permission = await requestNotificationPermission()
       setPermission(permission)
+      console.log('✅ Permission result:', permission)
       
       if (permission !== 'granted') {
         toast.error('Permiso de notificaciones denegado')
@@ -52,25 +56,31 @@ export function PushNotificationSettings() {
       }
       
       // Subscribe to push notifications
+      console.log('📡 Subscribing to push notifications...')
       const subscription = await subscribeToPush()
+      console.log('✅ Subscription result:', subscription)
       
       if (!subscription) {
-        toast.error('Error al suscribirse a notificaciones')
+        toast.error('Error al suscribirse a notificaciones. Verifica que el service worker esté activo.')
         return
       }
       
-      // Save subscription to database
-      const result = await savePushSubscription(subscription)
+      // Save subscription to database (serialize to JSON first)
+      console.log('💾 Saving subscription to database...')
+      const subscriptionJSON = subscription.toJSON()
+      const result = await savePushSubscription(subscriptionJSON)
+      console.log('✅ Save result:', result)
       
       if (result.success) {
         setIsSubscribed(true)
         toast.success('Notificaciones activadas correctamente')
       } else {
-        toast.error('Error al guardar suscripción')
+        toast.error(`Error al guardar suscripción: ${result.error || 'Unknown error'}`)
+        console.error('Save error:', result.error)
       }
     } catch (error) {
-      console.error('Error enabling notifications:', error)
-      toast.error('Error al activar notificaciones')
+      console.error('❌ Error enabling notifications:', error)
+      toast.error(`Error al activar notificaciones: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsLoading(false)
     }
