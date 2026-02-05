@@ -1,124 +1,108 @@
-// Import workbox for caching strategies
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
+/**
+ * Copyright 2018 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-// Initialize workbox
-workbox.setConfig({ debug: false });
+// If the loader is already loaded, just stop.
+if (!self.define) {
+  let registry = {};
 
-// Precache static assets
-workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || []);
+  // Used for `eval` and `importScripts` where we can't get script URL by other means.
+  // In both cases, it's safe to use a global var because those functions are synchronous.
+  let nextDefineUri;
 
-// Cache strategies (same as next-pwa config)
-workbox.routing.registerRoute(
-  /^https:\/\/.*\.supabase\.co\/.*/i,
-  new workbox.strategies.NetworkFirst({
-    cacheName: 'supabase-api',
-    plugins: [
-      new workbox.expiration.ExpirationPlugin({
-        maxEntries: 32,
-        maxAgeSeconds: 60 * 60, // 1 hour
-      }),
-    ],
-  })
-);
-
-workbox.routing.registerRoute(
-  /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
-  new workbox.strategies.CacheFirst({
-    cacheName: 'images',
-    plugins: [
-      new workbox.expiration.ExpirationPlugin({
-        maxEntries: 64,
-        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-      }),
-    ],
-  })
-);
-
-workbox.routing.registerRoute(
-  /\.(?:js|css)$/i,
-  new workbox.strategies.StaleWhileRevalidate({
-    cacheName: 'static-resources',
-    plugins: [
-      new workbox.expiration.ExpirationPlugin({
-        maxEntries: 32,
-        maxAgeSeconds: 24 * 60 * 60, // 24 hours
-      }),
-    ],
-  })
-);
-
-// ===== PUSH NOTIFICATION HANDLING =====
-
-// Listen for push events
-self.addEventListener('push', function(event) {
-  console.log('[Service Worker] Push received:', event);
-  
-  if (!event.data) {
-    console.log('[Service Worker] Push event but no data');
-    return;
-  }
-  
-  let data;
-  try {
-    data = event.data.json();
-  } catch (e) {
-    console.error('[Service Worker] Error parsing push data:', e);
-    data = {
-      title: 'MyCare',
-      body: event.data.text(),
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
-    };
-  }
-  
-  const title = data.title || 'MyCare';
-  const options = {
-    body: data.body || 'Nueva notificación',
-    icon: data.icon || '/icons/icon-192x192.png',
-    badge: data.badge || '/icons/icon-72x72.png',
-    tag: data.tag || 'mycare-notification',
-    data: {
-      url: data.url || '/',
-      ...data.data,
-    },
-    vibrate: [200, 100, 200],
-    requireInteraction: data.requireInteraction || false,
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
-});
-
-// Handle notification clicks
-self.addEventListener('notificationclick', function(event) {
-  console.log('[Service Worker] Notification clicked:', event);
-  
-  event.notification.close();
-  
-  const urlToOpen = event.notification.data?.url || '/';
-  
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(function(clientList) {
-        // Check if there's already a window open
-        for (let i = 0; i < clientList.length; i++) {
-          const client = clientList[i];
-          if (client.url === urlToOpen && 'focus' in client) {
-            return client.focus();
+  const singleRequire = (uri, parentUri) => {
+    uri = new URL(uri + ".js", parentUri).href;
+    return registry[uri] || (
+      
+        new Promise(resolve => {
+          if ("document" in self) {
+            const script = document.createElement("script");
+            script.src = uri;
+            script.onload = resolve;
+            document.head.appendChild(script);
+          } else {
+            nextDefineUri = uri;
+            importScripts(uri);
+            resolve();
           }
+        })
+      
+      .then(() => {
+        let promise = registry[uri];
+        if (!promise) {
+          throw new Error(`Module ${uri} didn’t register its module`);
         }
-        // If no window is open, open a new one
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
+        return promise;
       })
-  );
-});
+    );
+  };
 
-// Handle notification close
-self.addEventListener('notificationclose', function(event) {
-  console.log('[Service Worker] Notification closed:', event);
-});
+  self.define = (depsNames, factory) => {
+    const uri = nextDefineUri || ("document" in self ? document.currentScript.src : "") || location.href;
+    if (registry[uri]) {
+      // Module is already loading or loaded.
+      return;
+    }
+    let exports = {};
+    const require = depUri => singleRequire(depUri, uri);
+    const specialDeps = {
+      module: { uri },
+      exports,
+      require
+    };
+    registry[uri] = Promise.all(depsNames.map(
+      depName => specialDeps[depName] || require(depName)
+    )).then(deps => {
+      factory(...deps);
+      return exports;
+    });
+  };
+}
+define(['./workbox-bd7e3b9b'], (function (workbox) { 'use strict';
 
-console.log('[Service Worker] Loaded with push notification support');
+  importScripts("fallback-development.js", "worker-development.js");
+  self.skipWaiting();
+  workbox.clientsClaim();
+  workbox.registerRoute("/", new workbox.NetworkFirst({
+    "cacheName": "start-url",
+    plugins: [{
+      cacheWillUpdate: async ({
+        request,
+        response,
+        event,
+        state
+      }) => {
+        if (response && response.type === 'opaqueredirect') {
+          return new Response(response.body, {
+            status: 200,
+            statusText: 'OK',
+            headers: response.headers
+          });
+        }
+        return response;
+      }
+    }, {
+      handlerDidError: async ({
+        request
+      }) => self.fallback(request)
+    }]
+  }), 'GET');
+  workbox.registerRoute(/.*/i, new workbox.NetworkOnly({
+    "cacheName": "dev",
+    plugins: [{
+      handlerDidError: async ({
+        request
+      }) => self.fallback(request)
+    }]
+  }), 'GET');
+
+}));
