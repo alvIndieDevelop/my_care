@@ -11,6 +11,8 @@ import { t } from '@/lib/translations'
 
 interface DashboardNavProps {
   profile: Tables<'profiles'>
+  isAdmin: boolean
+  isCaregiver: boolean
 }
 
 interface NavDropdownProps {
@@ -98,11 +100,10 @@ function HamburgerIcon({ isOpen }: { isOpen: boolean }) {
   )
 }
 
-export function DashboardNav({ profile }: DashboardNavProps) {
+export function DashboardNav({ profile, isAdmin, isCaregiver }: DashboardNavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
-  const isAdmin = profile.role === 'admin'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Close mobile menu when route changes
@@ -167,15 +168,21 @@ export function DashboardNav({ profile }: DashboardNavProps) {
     { href: '/dashboard/appointments', label: t.nav.appointments },
   ]
 
-  const roleLabel = profile.role === 'admin' ? 'Administrador' : 'Cuidador'
+  // Determine role label
+  const roleLabel = isAdmin && isCaregiver ? 'Admin y Cuidador' : 
+                    isAdmin ? 'Administrador' : 'Cuidador'
+
+  // Show admin menu if admin, or if only caregiver show caregiver menu
+  const showAdminMenu = isAdmin
+  const showCaregiverMobileMenu = isCaregiver && !isAdmin
 
   return (
     <>
       <nav className="bg-background border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center justify-between h-16">
-            {/* Mobile menu button - Admin only */}
-            {isAdmin && (
+            {/* Mobile menu button - Show for admin or caregiver-only */}
+            {(showAdminMenu || showCaregiverMobileMenu) && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden p-2 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -192,7 +199,7 @@ export function DashboardNav({ profile }: DashboardNavProps) {
 
             {/* Navigation Links - Desktop */}
             <div className="hidden md:flex items-center space-x-1">
-              {isAdmin ? (
+              {showAdminMenu ? (
                 <>
                   {/* Dashboard link */}
                   <Link
@@ -231,6 +238,26 @@ export function DashboardNav({ profile }: DashboardNavProps) {
                   >
                     {adminNavGroups.analytics.label}
                   </Link>
+
+                  {/* Add caregiver section if dual role */}
+                  {isCaregiver && (
+                    <>
+                      <div className="h-6 w-px bg-border mx-2" />
+                      {caregiverLinks.slice(1).map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                            pathname === link.href
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </>
+                  )}
                 </>
               ) : (
                 caregiverLinks.map((link) => (
@@ -262,8 +289,8 @@ export function DashboardNav({ profile }: DashboardNavProps) {
             </div>
           </div>
 
-          {/* Caregiver Mobile Navigation - Bottom bar style (only for caregivers) */}
-          {!isAdmin && (
+          {/* Caregiver Mobile Navigation - Bottom bar style (only for caregiver-only users) */}
+          {showCaregiverMobileMenu && (
             <div className="relative md:hidden">
               {/* Left fade indicator */}
               <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none z-10" />
@@ -292,8 +319,8 @@ export function DashboardNav({ profile }: DashboardNavProps) {
         </div>
       </nav>
 
-      {/* Mobile Slide-out Menu - Admin only */}
-      {isAdmin && (
+      {/* Mobile Slide-out Menu - For admin or dual role users */}
+      {showAdminMenu && (
         <>
           {/* Backdrop */}
           <div
@@ -305,7 +332,7 @@ export function DashboardNav({ profile }: DashboardNavProps) {
 
           {/* Slide-out drawer */}
           <div
-            className={`fixed top-0 left-0 h-full w-72 bg-background border-r border-border z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
+            className={`fixed top-0 left-0 h-full w-72 bg-background border-r border-border z-50 md:hidden transform transition-transform duration-300 ease-in-out overflow-y-auto ${
               mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
           >
@@ -327,8 +354,11 @@ export function DashboardNav({ profile }: DashboardNavProps) {
               <p className="text-sm text-muted-foreground">{roleLabel}</p>
             </div>
 
-            {/* Navigation links */}
+            {/* Admin Navigation links */}
             <div className="py-2">
+              <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase">
+                Administración
+              </div>
               {adminLinksMobile.map((link) => (
                 <Link
                   key={link.href}
@@ -344,6 +374,29 @@ export function DashboardNav({ profile }: DashboardNavProps) {
                 </Link>
               ))}
             </div>
+
+            {/* Caregiver Navigation links (if dual role) */}
+            {isCaregiver && (
+              <div className="py-2 border-t border-border">
+                <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase">
+                  Mi Turno
+                </div>
+                {caregiverLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center px-4 py-3 text-base transition-colors ${
+                      pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
+                        ? 'bg-green-50 text-green-700 dark:bg-green-900/50 dark:text-green-300 border-r-4 border-green-600'
+                        : 'text-foreground hover:bg-accent'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}
