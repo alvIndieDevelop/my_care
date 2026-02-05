@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TaskCompletionForm } from './task-completion-form'
 import { t, formatDateSpanish } from '@/lib/translations'
+import { getUserRoles } from '@/lib/auth/roles'
 
 interface Task {
   id: string
@@ -26,25 +27,15 @@ export default async function TasksPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
   
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Check if user has caregiver role
+  const { isCaregiver, caregiverId } = await getUserRoles(user.id)
   
-  // Redirect admins to the main dashboard
-  if (profile?.role === 'admin') {
+  // Redirect non-caregivers to the main dashboard
+  if (!isCaregiver) {
     redirect('/dashboard')
   }
 
-  // Get caregiver record
-  const { data: caregiver } = await supabase
-    .from('caregivers')
-    .select('id')
-    .eq('profile_id', user.id)
-    .single()
-
-  if (!caregiver) {
+  if (!caregiverId) {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold text-foreground">{t.tasks.title}</h1>
@@ -78,7 +69,7 @@ export default async function TasksPage() {
         sort_order
       )
     `)
-    .eq('caregiver_id', caregiver.id)
+    .eq('caregiver_id', caregiverId)
     .eq('day_of_week', dayOfWeek)
 
   const typedSchedules = schedules as Schedule[] | null
@@ -87,7 +78,7 @@ export default async function TasksPage() {
   const { data: taskLogs } = await supabase
     .from('task_logs')
     .select('task_id, status, notes')
-    .eq('caregiver_id', caregiver.id)
+    .eq('caregiver_id', caregiverId)
     .eq('log_date', todayStr)
 
   const taskLogMap = new Map(taskLogs?.map(log => [log.task_id, log]) || [])
@@ -155,7 +146,7 @@ export default async function TasksPage() {
                   
                   <TaskCompletionForm 
                     taskId={task.id}
-                    caregiverId={caregiver.id}
+                    caregiverId={caregiverId}
                     currentStatus={log?.status || null}
                     currentNotes={log?.notes || null}
                   />

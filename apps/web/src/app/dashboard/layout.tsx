@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardNav } from '@/components/layout/dashboard-nav'
+import { getUserRoles } from '@/lib/auth/roles'
 
 export default async function DashboardLayout({
   children,
@@ -15,12 +16,8 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  // Get user profile with role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  // Get user roles
+  const { isAdmin, isCaregiver, profile } = await getUserRoles(user.id)
 
   if (!profile) {
     redirect('/login')
@@ -28,7 +25,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardNav profile={profile} />
+      <DashboardNav profile={profile} isAdmin={isAdmin} isCaregiver={isCaregiver} />
       <main className="container mx-auto px-4 py-6 max-w-7xl">
         {children}
       </main>
