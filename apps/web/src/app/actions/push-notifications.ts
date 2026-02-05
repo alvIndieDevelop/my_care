@@ -6,7 +6,7 @@ import { sendPushNotification, sendPushNotificationToUsers } from '@/lib/push/se
 /**
  * Save push subscription to database
  */
-export async function savePushSubscription(subscription: PushSubscription) {
+export async function savePushSubscription(subscriptionJSON: PushSubscriptionJSON) {
   const supabase = await createClient()
   
   const {
@@ -17,15 +17,17 @@ export async function savePushSubscription(subscription: PushSubscription) {
     return { success: false, error: 'Not authenticated' }
   }
   
-  const subscriptionData = subscription.toJSON()
+  if (!subscriptionJSON.endpoint || !subscriptionJSON.keys) {
+    return { success: false, error: 'Invalid subscription data' }
+  }
   
   const { error } = await supabase.from('push_subscriptions').upsert(
     {
       user_id: user.id,
-      endpoint: subscription.endpoint,
-      p256dh: subscriptionData.keys?.p256dh || '',
-      auth: subscriptionData.keys?.auth || '',
-      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+      endpoint: subscriptionJSON.endpoint,
+      p256dh: subscriptionJSON.keys.p256dh || '',
+      auth: subscriptionJSON.keys.auth || '',
+      user_agent: null, // Will be set by client
     },
     {
       onConflict: 'endpoint',
